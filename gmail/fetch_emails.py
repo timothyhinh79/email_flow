@@ -7,8 +7,7 @@ import base64
 from common import authenticate, params
 
 def main(args):
-  """Shows basic usage of the Gmail API.
-  Lists the user's Gmail labels.
+  """ Fetches user's emails starting from a history ID
   """
   
   creds = authenticate.get_creds(params.token_json, params.credentials_json)

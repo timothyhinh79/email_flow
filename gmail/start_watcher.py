@@ -5,8 +5,7 @@ from common import authenticate
 from common import params
 
 def main():
-  """Shows basic usage of the Gmail API.
-  Lists the user's Gmail labels.
+  """Configures PubSub topic to watch Gmail activity
   """
 
   creds = authenticate.get_creds(params.token_json, params.credentials_json)
