@@ -1,0 +1,5 @@
+.env
+venv/
+sample_data/
+credentials/
+__pycache__/
