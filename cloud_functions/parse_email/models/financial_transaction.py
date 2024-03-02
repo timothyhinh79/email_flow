@@ -7,7 +7,18 @@ class FinancialTransaction(Base):
     __tablename__ = 'financial_transactions'
     __table_args__ = {'schema': 'public'}
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
+    transaction_type = Column(String)
+    amount = Column(Float)
+    date = Column(DateTime)
+    description = Column(String)
+    category = Column(String)
+
+class FinancialTransactionTest(Base):
+    __tablename__ = 'financial_transactions_test'
+    __table_args__ = {'schema': 'public'}
+
+    id = Column(String, primary_key=True)
     transaction_type = Column(String)
     amount = Column(Float)
     date = Column(DateTime)
