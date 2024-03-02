@@ -55,11 +55,11 @@ def db_setup():
 
 def test_query(db_setup):
     db_creds = DBCredentials(
-        host = 'aws-0-us-west-1.pooler.supabase.com',
-        port = '5432',
-        user = 'postgres.jnkydlefgollpcwqjbps',
-        password = 'IuHKTkPi8radGv7o',
-        database = 'postgres'
+        host = DB_HOST,
+        port = DB_PORT,
+        user = DB_USER,
+        password = DB_PASSWORD,
+        database = DB_DATABASE
     )
 
     res = query(
@@ -76,11 +76,11 @@ def test_query(db_setup):
 def test_save_to_db(db_setup):
 
     db_creds = DBCredentials(
-        host = 'aws-0-us-west-1.pooler.supabase.com',
-        port = '5432',
-        user = 'postgres.jnkydlefgollpcwqjbps',
-        password = 'IuHKTkPi8radGv7o',
-        database = 'postgres'
+        host = DB_HOST,
+        port = DB_PORT,
+        user = DB_USER,
+        password = DB_PASSWORD,
+        database = DB_DATABASE
     )
 
     sample_data = {
