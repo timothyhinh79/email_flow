@@ -10,9 +10,10 @@ class FinancialTransaction(Base):
     id = Column(String, primary_key=True)
     transaction_type = Column(String)
     amount = Column(Float)
-    date = Column(DateTime)
+    transaction_date = Column(DateTime)
     description = Column(String)
     category = Column(String)
+    updated_at = Column(DateTime)
 
 class FinancialTransactionTest(Base):
     __tablename__ = 'financial_transactions_test'
@@ -21,6 +22,7 @@ class FinancialTransactionTest(Base):
     id = Column(String, primary_key=True)
     transaction_type = Column(String)
     amount = Column(Float)
-    date = Column(DateTime)
+    transaction_date = Column(DateTime)
     description = Column(String)
     category = Column(String)
+    updated_at = Column(DateTime)

@@ -25,22 +25,24 @@ def db_setup():
     query = text("""
         DROP TABLE IF EXISTS financial_transactions_test;
         CREATE TABLE financial_transactions_test (
-            id VARCHAR,
-            transaction_type VARCHAR,
-            amount FLOAT,
-            date TIMESTAMPTZ,
-            description VARCHAR,
-            category VARCHAR
+                id VARCHAR,
+                transaction_type VARCHAR,
+                amount FLOAT,
+                transaction_date TIMESTAMPTZ,
+                description VARCHAR,
+                category VARCHAR,
+                updated_at TIMESTAMPTZ
         );
 
         INSERT INTO financial_transactions_test VALUES
-        (1, 'debit', 100.0, '2024-01-01', 'Sample Description', 'Sample Category');
+        (1, 'debit', 100.0, '2024-01-01 00:00:05-08', 'Sample Description', 'Sample Category', '2024-01-02 00:00:12-08');
     """)
 
     # Execute the query and fetch all results
     with engine.connect() as connection:
         result = connection.execute(query)
-
+        
+    # breakpoint()
     yield result
 
     # Define your SQL query
@@ -61,16 +63,17 @@ def test_query(db_setup):
         password = DB_PASSWORD,
         database = DB_DATABASE
     )
-
+    
     res = query(
         sql = "SELECT * FROM financial_transactions_test WHERE id = '1'",
         db_creds = db_creds,
     )
 
     assert res == [('1', 'debit', 100.0, 
-                    datetime.datetime(2024, 1, 1, 0, 0, tzinfo=datetime.timezone.utc), 
+                    datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
                     'Sample Description', 
-                    'Sample Category')]
+                    'Sample Category',
+                    datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc))]
 
 
 def test_save_to_db(db_setup):
@@ -87,9 +90,10 @@ def test_save_to_db(db_setup):
         'id': '2',
         'transaction_type': 'credit',
         'amount': 200.0,
-        'date': '2024-03-01',
+        'transaction_date': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
         'description': 'Groceries',
-        'category': 'Food'
+        'category': 'Food',
+        'updated_at': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc)
     }
     
     save_to_db(model = FinancialTransactionTest, data_json = sample_data, db_creds = db_creds)
@@ -102,14 +106,16 @@ def test_save_to_db(db_setup):
     assert records == [
 
         ('1', 'debit', 100.0, 
-        datetime.datetime(2024, 1, 1, 0, 0, tzinfo=datetime.timezone.utc), 
+        datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
         'Sample Description', 
-        'Sample Category'),
+        'Sample Category',
+        datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
 
         ('2', 'credit', 200.0, 
-        datetime.datetime(2024, 3, 1, 0, 0, tzinfo=datetime.timezone.utc), 
+        datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc), 
         'Groceries', 
-        'Food'),
+        'Food',
+        datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         
     ]
 
