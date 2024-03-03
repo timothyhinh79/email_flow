@@ -5,7 +5,7 @@ import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-from models.history_ids import HistoryIDsTest
+from models.history_id import HistoryIDsTest
 from db_utils.db_functions import query, save_to_db
 from classes.db_credentials import DBCredentials
 
