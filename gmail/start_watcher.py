@@ -15,7 +15,7 @@ def main():
     gmail = build("gmail", "v1", credentials=creds)
     request = {
       # label ID for BofA is: Label_3935809748622434433
-      'labelIds': ['Label_3884943773140766149'], # label ID for Minim
+      'labelIds': ['Label_3884943773140766149', 'Label_3935809748622434433' ], # label ID for Minim
       'topicName': 'projects/email-parser-414818/topics/personal-emails',
       'labelFilterBehavior': 'INCLUDE',
       'historyTypes': ['messageAdded']
