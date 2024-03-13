@@ -1,13 +1,23 @@
 
 from google.cloud import secretmanager
+from google.oauth2 import service_account
 import json
 import re
 import uuid
 import datetime
+import base64
 
-def access_secret_version(project_id, secret_id, version_id):
-    # Create the Secret Manager client.
-    client = secretmanager.SecretManagerServiceClient()
+from models.financial_transaction import FinancialTransaction
+from db_utils.db_functions import save_to_db
+
+def access_secret_version(project_id, secret_id, version_id, service_account_file = None):
+
+    # Create Secret Manager client.
+    if service_account_file:
+        credentials = service_account.Credentials.from_service_account_file(service_account_file)
+        client = secretmanager.SecretManagerServiceClient(credentials = credentials)
+    else:
+        client = secretmanager.SecretManagerServiceClient()
 
     # Build the resource name of the secret version.
     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
@@ -46,3 +56,49 @@ def parse_email_body(email_body):
     }
 
     return data_json
+
+def process_history(gmail_client, history, label_id = None, save_to_db_ = True, db_creds = None):
+
+    db_records = []
+
+    for history_record in history['history']:
+        if 'messagesAdded' in history_record:
+            for messageAdded in history_record['messagesAdded']:
+                
+                message = messageAdded['message']
+                if 'labelIds' in message and (label_id == None or label_id in message['labelIds']):
+                    msg = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
+
+                    # Extract the headers
+                    headers = msg['payload']['headers']
+
+                    # Find the subject header
+                    subject = None
+                    for header in headers:
+                        if header['name'] == 'Subject':
+                            # Print the subject
+                            subject = header['value']
+
+                    assert subject, f"No subject found in message with id {message['id']}"
+
+                    if subject == 'Credit card transaction exceeds alert limit you set':
+                        if 'data' in msg['payload']['body']:
+                            data = msg['payload']['body']['data']
+                        else:
+                            # if email is multipart, get the first part, which is typically the plain text version of the email body
+                            parts = msg['payload'].get('parts')[0]
+                            data = parts['body']['data']
+
+                    
+                        # Decode the body data
+                        data = data.replace("-","+").replace("_","/")
+                        decoded_data = base64.urlsafe_b64decode(data)
+                        body = decoded_data.decode("utf-8")
+
+                        data_json = parse_email_body(body)
+                        db_records.append(data_json)
+
+                        if save_to_db_:
+                            save_to_db(FinancialTransaction, data_json, db_creds=db_creds)                        
+    
+    return db_records
