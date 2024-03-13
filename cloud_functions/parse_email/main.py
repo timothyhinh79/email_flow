@@ -57,7 +57,7 @@ def parse_data_and_save_to_db(cloud_event):
         process_history(
             gmail_client = gmail,
             history=history,
-            label_id="Label_3884943773140766149",
+            label_id="Label_3935809748622434433",
             save_to_db_=True,
             db_creds=db_creds,
         )
