@@ -73,7 +73,28 @@ def test_parse_email_body():
 
     assert updated_at_timestamp >= timestamp_before_parsing
 
-def test_process_history():
+def test_parse_email_body_on_unforwarded_email_with_html():
+    with open('./tests/data/sample_html_payload.txt', 'r') as f:
+        html_payload = f.read()
+
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    data_json = parse_email_body(html_payload)
+
+    data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
+    updated_at_timestamp = data_json['updated_at']
+
+    assert data_json_wo_time == {
+        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['7.99', 'March 07, 2024', 'Hulu 877-8244858 CA'])),
+        'transaction_type': 'credit',
+        'amount': '7.99',
+        'transaction_date': 'March 07, 2024',
+        'description': 'Hulu 877-8244858 CA',
+        'category': None
+    }
+
+    assert updated_at_timestamp >= timestamp_before_parsing
+
+def test_process_history_w_forwarded_emails():
 
     # Create credentials
     creds = Credentials.from_authorized_user_info({
@@ -102,7 +123,7 @@ def test_process_history():
         save_to_db_=False,
         db_creds=db_creds,
     )
-
+    
     updated_at_timestamps = []
     for db_record in db_records:
         db_record['id'] = str(db_record['id'])   
@@ -122,3 +143,49 @@ def test_process_history():
 
     for updated_at_timestamp in updated_at_timestamps:
         assert updated_at_timestamp >= start_timestamp
+
+def test_process_history_with_unforwarded_emails_w_html():
+
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
+
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    from tests.data.sample_history import history
+
+    db_creds = DBCredentials(
+        host = DB_HOST,
+        port = DB_PORT,
+        user = DB_USER,
+        password = DB_PASSWORD,
+        database = DB_DATABASE
+    )
+
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    db_records = process_history(
+        gmail_client = gmail,
+        history=history,
+        label_id="Label_3935809748622434433",
+        save_to_db_=False,
+        db_creds=db_creds,
+    )
+    
+    updated_at_timestamps = []
+    for db_record in db_records:
+        db_record['id'] = str(db_record['id'])   
+        updated_at_timestamps.append(db_record['updated_at'])
+        db_record.pop('updated_at')
+
+    expected_db_records = [
+        {'id': 'e1d86e0c-1053-5240-85cc-2514b608964c', 'transaction_type': 'credit', 'amount': '7.99', 'transaction_date': 'March 07, 2024', 'description': 'Hulu 877-8244858 CA', 'category': None}
+    ]
+    
+    assert db_records == expected_db_records
+
+    for updated_at_timestamp in updated_at_timestamps:
+        assert updated_at_timestamp >= start_timestamp
+
