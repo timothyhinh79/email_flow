@@ -1,4 +1,9 @@
-from lib.parse_helpers import parse_email_body, process_history
+from lib.parse_helpers import (
+    parse_email_body, 
+    get_messages_after_specific_message, 
+    process_message, 
+    get_latest_message_id
+)
 import uuid
 import datetime
 from dotenv import load_dotenv
@@ -18,6 +23,20 @@ DB_PORT = os.getenv('DB_PORT')
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_DATABASE = os.getenv('DB_DATABASE')
+
+def sort_email_messages(gmail_client, messages):
+    full_messages = []
+    for message in messages:
+        msg = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
+        full_messages.append(msg)
+
+    message_ids_n_dates = [
+        {'id': full_message['id'], 'internalDate': full_message['internalDate']}
+        for full_message in full_messages
+    ]
+
+    sorted_messages = sorted(message_ids_n_dates, key=lambda msg: int(msg['internalDate']))
+    return sorted_messages
 
 def test_parse_email_body():
     example_bofa_email = """
@@ -94,8 +113,7 @@ def test_parse_email_body_on_unforwarded_email_with_html():
 
     assert updated_at_timestamp >= timestamp_before_parsing
 
-def test_process_history_w_forwarded_emails():
-
+def test_get_messages_after_specific_message_with_no_message_id():
     # Create credentials
     creds = Credentials.from_authorized_user_info({
         'client_id': GOOGLE_CLIENT_ID, 
@@ -105,47 +123,21 @@ def test_process_history_w_forwarded_emails():
 
     gmail = build('gmail', 'v1', credentials=creds)
 
-    from tests.data.sample_history import history
-
-    db_creds = DBCredentials(
-        host = DB_HOST,
-        port = DB_PORT,
-        user = DB_USER,
-        password = DB_PASSWORD,
-        database = DB_DATABASE
-    )
-
-    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
-    db_records = process_history(
-        gmail_client = gmail,
-        history=history,
-        label_id="Label_3884943773140766149",
-        save_to_db_=False,
-        db_creds=db_creds,
-    )
+    # Get messages for "Testing for Email Parser" label
+    messages = get_messages_after_specific_message(gmail, label_ids = ['Label_7814975169765856594'])
+    sorted_messages = sort_email_messages(gmail, messages)
     
-    updated_at_timestamps = []
-    for db_record in db_records:
-        db_record['id'] = str(db_record['id'])   
-        updated_at_timestamps.append(db_record['updated_at'])
-        db_record.pop('updated_at')
-    
-    expected_db_records = [
-        {'id': '3aa2eb80-93bb-5684-bee9-b58d9f41c026', 'transaction_type': 'credit', 'amount': '4.99', 'transaction_date': 'February 28, 2024', 'description': 'PAYPAL TWITCHINTER', 'category': None},
-        {'id': '3aa2eb80-93bb-5684-bee9-b58d9f41c026', 'transaction_type': 'credit', 'amount': '4.99', 'transaction_date': 'February 28, 2024', 'description': 'PAYPAL TWITCHINTER', 'category': None}, 
-        {'id': '3aa2eb80-93bb-5684-bee9-b58d9f41c026', 'transaction_type': 'credit', 'amount': '4.99', 'transaction_date': 'February 28, 2024', 'description': 'PAYPAL TWITCHINTER', 'category': None}, 
-        {'id': '3aa2eb80-93bb-5684-bee9-b58d9f41c026', 'transaction_type': 'credit', 'amount': '4.99', 'transaction_date': 'February 28, 2024', 'description': 'PAYPAL TWITCHINTER', 'category': None}, 
-        {'id': '3aa2eb80-93bb-5684-bee9-b58d9f41c026', 'transaction_type': 'credit', 'amount': '4.99', 'transaction_date': 'February 28, 2024', 'description': 'PAYPAL TWITCHINTER', 'category': None}
+    # As of 3/20/24, this label should only have 4 messages
+    expected_messages = [
+        {'id': '18dced81bdd8b94e', 'internalDate': '1708572276000'}, 
+        {'id': '18dcef1c5b9281d1', 'internalDate': '1708573956000'}, 
+        {'id': '18e362f2ae442dc7', 'internalDate': '1710306043000'},
+        {'id': '18e4f00dd55eb102', 'internalDate': '1710722430000'}
     ]
 
-    
-    assert db_records == expected_db_records
+    assert sorted_messages == expected_messages
 
-    for updated_at_timestamp in updated_at_timestamps:
-        assert updated_at_timestamp >= start_timestamp
-
-def test_process_history_with_unforwarded_emails_w_html():
-
+def test_get_messages_after_specific_message_with_message_id():
     # Create credentials
     creds = Credentials.from_authorized_user_info({
         'client_id': GOOGLE_CLIENT_ID, 
@@ -155,37 +147,67 @@ def test_process_history_with_unforwarded_emails_w_html():
 
     gmail = build('gmail', 'v1', credentials=creds)
 
-    from tests.data.sample_history import history
-
-    db_creds = DBCredentials(
-        host = DB_HOST,
-        port = DB_PORT,
-        user = DB_USER,
-        password = DB_PASSWORD,
-        database = DB_DATABASE
+    # Get messages for "Testing for Email Parser" label after the first message
+    messages = get_messages_after_specific_message(
+        gmail, 
+        message_id = '18dced81bdd8b94e',
+        label_ids = ['Label_7814975169765856594']
     )
+    sorted_messages = sort_email_messages(gmail, messages)
 
-    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
-    db_records = process_history(
-        gmail_client = gmail,
-        history=history,
-        label_id="Label_3935809748622434433",
-        save_to_db_=False,
-        db_creds=db_creds,
-    )
-    
-    updated_at_timestamps = []
-    for db_record in db_records:
-        db_record['id'] = str(db_record['id'])   
-        updated_at_timestamps.append(db_record['updated_at'])
-        db_record.pop('updated_at')
-
-    expected_db_records = [
-        {'id': 'e1d86e0c-1053-5240-85cc-2514b608964c', 'transaction_type': 'credit', 'amount': '7.99', 'transaction_date': 'March 07, 2024', 'description': 'Hulu 877-8244858 CA', 'category': None}
+    # We should only see the latter two messages from the prior test
+    expected_messages = [
+        {'id': '18dcef1c5b9281d1', 'internalDate': '1708573956000'}, 
+        {'id': '18e362f2ae442dc7', 'internalDate': '1710306043000'},
+        {'id': '18e4f00dd55eb102', 'internalDate': '1710722430000'}
     ]
     
-    assert db_records == expected_db_records
+    assert sorted_messages == expected_messages
 
-    for updated_at_timestamp in updated_at_timestamps:
-        assert updated_at_timestamp >= start_timestamp
+def test_process_message():
+# def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = None):
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
 
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    data_json = process_message(gmail, message_id = '18e362f2ae442dc7', save_to_db_ = False)
+    data_json['id'] = str(data_json['id'])
+    updated_at_timestamp = data_json.pop('updated_at')
+    
+    assert data_json == {
+        'id': '2d9936c7-77e4-57ca-b99a-46a37c602aa1', 
+        'transaction_type': 'credit', 
+        'amount': '4.99', 
+        'transaction_date': 'March 13, 2024', 
+        'description': 'PAYPAL  TWITCHINTER', 
+        'category': None
+    }
+
+    assert updated_at_timestamp >= start_timestamp
+
+def test_get_latest_message_id():
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
+
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    messages = [
+        {'id': '18dced81bdd8b94e'}, 
+        {'id': '18dcef1c5b9281d1'}, 
+        {'id': '18e362f2ae442dc7'},
+        {'id': '18e4f00dd55eb102'} # this is the message with the latest InternalDate
+    ]
+
+    latest_message_id = get_latest_message_id(gmail, messages)
+    
+    assert latest_message_id == '18e4f00dd55eb102'

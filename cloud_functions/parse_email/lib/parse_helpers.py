@@ -70,43 +70,73 @@ def parse_email_body(email_body):
     
     return data_json
 
-def process_history(gmail_client, history, label_id = None, save_to_db_ = True, db_creds = None):
-
-    db_records = []
-
-    for history_record in history['history']:
-        if 'messagesAdded' in history_record:
-            for messageAdded in history_record['messagesAdded']:
-                
-                message = messageAdded['message']
-                if 'labelIds' in message and (label_id == None or label_id in message['labelIds']):
-
-                    # Grab message from Gmail API in raw format and decode
-                    msg = gmail_client.users().messages().get(userId='me', id=message['id'], format='raw').execute()
-                    mime_msg = email.message_from_bytes(base64.urlsafe_b64decode(msg['raw']))
-
-                    # Get email subject
-                    subject = mime_msg['subject']
-                    assert subject, f"No subject found in message with id {message['id']}"
-
-                    # For credit card transaction email alerts, grab desired data
-                    if subject == 'Credit card transaction exceeds alert limit you set':
-
-                        # Extract full message body
-                        body = ''
-                        message_main_type = mime_msg.get_content_maintype()
-                        if message_main_type == 'multipart':
-                            for part in mime_msg.get_payload():
-                                if part.get_content_maintype() == 'text':
-                                    body += part.get_payload()
-                        elif message_main_type == 'text':
-                            body = mime_msg.get_payload()
-
-                        # Parse full message body and create db record
-                        data_json = parse_email_body(body)
-                        db_records.append(data_json)
-
-                        if save_to_db_:
-                            save_to_db(FinancialTransaction, data_json, db_creds=db_creds)                        
+def get_messages_after_specific_message(
+    gmail_client, 
+    message_id = None, 
+    label_ids = []
+):
     
-    return db_records
+    if not message_id:
+        results = gmail_client.users().messages().list(userId='me', labelIds=label_ids).execute()
+        messages = results.get('messages', [])
+    else:
+        # Get the internal date of the specified message
+        message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
+        internal_date_for_comparison = int(message['internalDate']) // 1000 # Convert to seconds
+
+        # Get the list of messages
+        results = gmail_client.users().messages().list(userId='me', labelIds=label_ids,q=f'after:{internal_date_for_comparison}').execute()
+
+        # Gmail API after: operator is not accurate to the second, so we may still get messages before the provided message
+        # Here, we filter the retrieved messages based on InternalDate
+        unfiltered_messages = results.get('messages', [])
+        messages = []
+        for message in unfiltered_messages:
+            full_message = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
+            internal_date = int(full_message['internalDate']) // 1000
+            if internal_date > internal_date_for_comparison:
+                messages.append(message)
+
+    return messages
+
+def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = None):
+
+    message = gmail_client.users().messages().get(userId='me', id=message_id, format = 'raw').execute()
+    mime_msg = email.message_from_bytes(base64.urlsafe_b64decode(message['raw']))
+
+    # Get email subject
+    subject = mime_msg['subject']
+    assert subject, f"No subject found in message with id {message['id']}"
+
+    data_json = None
+    # For credit card transaction email alerts, grab desired data
+    if subject == 'Credit card transaction exceeds alert limit you set':
+
+        # Extract full message body
+        body = ''
+        message_main_type = mime_msg.get_content_maintype()
+        if message_main_type == 'multipart':
+            for part in mime_msg.get_payload():
+                if part.get_content_maintype() == 'text':
+                    body += part.get_payload()
+        elif message_main_type == 'text':
+            body = mime_msg.get_payload()
+
+        # Parse full message body and create db record
+        data_json = parse_email_body(body)
+
+        if save_to_db_:
+            save_to_db(FinancialTransaction, data_json, db_creds=db_creds)   
+    
+    return data_json
+        
+
+def get_latest_message_id(gmail_client, messages):
+    # Retrieve full message details and sort by internal date
+    full_messages = []
+    for message in messages:
+        msg = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
+        full_messages.append(msg)
+
+    sorted_messages = sorted(full_messages, key=lambda msg: int(msg['internalDate']))
+    return sorted_messages[-1]['id']
