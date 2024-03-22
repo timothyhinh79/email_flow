@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from models.financial_transaction import FinancialTransactionTest
-from db_utils.db_functions import query, save_to_db
+from db_utils.db_functions import query, save_to_db, get_pk_field
 from classes.db_credentials import DBCredentials
 
 load_dotenv()
@@ -76,6 +76,10 @@ def test_query(db_setup):
                     'Sample Category',
                     datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc))]
 
+def test_get_pk_field():
+
+    financial_transactions_pk_field = get_pk_field(FinancialTransactionTest)
+    assert financial_transactions_pk_field == 'id'
 
 def test_save_to_db(db_setup):
 
@@ -122,3 +126,40 @@ def test_save_to_db(db_setup):
     ]
 
     
+def test_save_to_db_when_id_already_exists(db_setup):
+
+    db_creds = DBCredentials(
+        host = DB_HOST,
+        port = DB_PORT,
+        user = DB_USER,
+        password = DB_PASSWORD,
+        database = DB_DATABASE
+    )
+
+    sample_data = {
+        'id': '1',
+        'message_id': 'message_id_2',
+        'transaction_type': 'credit',
+        'amount': 200.0,
+        'transaction_date': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
+        'description': 'Groceries',
+        'category': 'Food',
+        'updated_at': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc)
+    }
+    
+    save_to_db(model = FinancialTransactionTest, data_json = sample_data, db_creds = db_creds)
+
+    records = query(
+        sql = 'SELECT * FROM financial_transactions_test', 
+        db_creds = db_creds,
+    )
+
+    assert records == [
+
+        ('1', 'message_id_1', 'debit', 100.0, 
+        datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
+        'Sample Description', 
+        'Sample Category',
+        datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
+        
+    ]
