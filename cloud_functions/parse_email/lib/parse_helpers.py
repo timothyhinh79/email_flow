@@ -1,4 +1,3 @@
-
 from google.cloud import secretmanager
 from google.oauth2 import service_account
 import json
@@ -124,6 +123,7 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
 
         # Parse full message body and create db record
         data_json = parse_email_body(body)
+        data_json['message_id'] = message_id
 
         if save_to_db_:
             save_to_db(FinancialTransaction, data_json, db_creds=db_creds)   

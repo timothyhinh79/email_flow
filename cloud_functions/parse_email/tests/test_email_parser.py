@@ -182,6 +182,7 @@ def test_process_message():
     
     assert data_json == {
         'id': '2d9936c7-77e4-57ca-b99a-46a37c602aa1', 
+        'message_id': '18e362f2ae442dc7',
         'transaction_type': 'credit', 
         'amount': '4.99', 
         'transaction_date': 'March 13, 2024', 

@@ -26,6 +26,7 @@ def db_setup():
         DROP TABLE IF EXISTS financial_transactions_test;
         CREATE TABLE financial_transactions_test (
                 id VARCHAR,
+                message_id VARCHAR,
                 transaction_type VARCHAR,
                 amount FLOAT,
                 transaction_date TIMESTAMPTZ,
@@ -35,7 +36,7 @@ def db_setup():
         );
 
         INSERT INTO financial_transactions_test VALUES
-        (1, 'debit', 100.0, '2024-01-01 00:00:05-08', 'Sample Description', 'Sample Category', '2024-01-02 00:00:12-08');
+        (1, 'message_id_1', 'debit', 100.0, '2024-01-01 00:00:05-08', 'Sample Description', 'Sample Category', '2024-01-02 00:00:12-08');
     """)
 
     # Execute the query and fetch all results
@@ -69,7 +70,7 @@ def test_query(db_setup):
         db_creds = db_creds,
     )
 
-    assert res == [('1', 'debit', 100.0, 
+    assert res == [('1', 'message_id_1', 'debit', 100.0, 
                     datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
                     'Sample Description', 
                     'Sample Category',
@@ -88,6 +89,7 @@ def test_save_to_db(db_setup):
 
     sample_data = {
         'id': '2',
+        'message_id': 'message_id_2',
         'transaction_type': 'credit',
         'amount': 200.0,
         'transaction_date': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
@@ -105,13 +107,13 @@ def test_save_to_db(db_setup):
 
     assert records == [
 
-        ('1', 'debit', 100.0, 
+        ('1', 'message_id_1', 'debit', 100.0, 
         datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
         'Sample Description', 
         'Sample Category',
         datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
 
-        ('2', 'credit', 200.0, 
+        ('2', 'message_id_2', 'credit', 200.0, 
         datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc), 
         'Groceries', 
         'Food',
