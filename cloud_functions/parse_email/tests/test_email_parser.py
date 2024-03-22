@@ -212,3 +212,22 @@ def test_get_latest_message_id():
     latest_message_id = get_latest_message_id(gmail, messages)
     
     assert latest_message_id == '18e4f00dd55eb102'
+
+def test_get_latest_message_id_when_no_messages_are_provided():
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
+
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    messages = []
+
+    # Check if get_latest_message_id() throws an exception if 'messages' is empty
+    try:
+        latest_message_id = get_latest_message_id(gmail, messages)
+        assert False, "get_latest_message_id() did not throw an exception when 'messages' is empty"
+    except: 
+        assert True

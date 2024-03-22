@@ -132,6 +132,9 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
         
 
 def get_latest_message_id(gmail_client, messages):
+
+    assert messages, "No messages provided, cannot get latest message ID"
+
     # Retrieve full message details and sort by internal date
     full_messages = []
     for message in messages:

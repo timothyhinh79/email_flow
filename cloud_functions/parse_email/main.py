@@ -37,26 +37,21 @@ def parse_data_and_save_to_db(cloud_event):
         'refresh_token': api_secrets['refresh_token']
     })
 
-    try:
+    gmail = build('gmail', 'v1', credentials=creds)
 
-        gmail = build('gmail', 'v1', credentials=creds)
+    # Specify the start messageId
+    start_message_id = MessageIDs.fetch_latest_messageid(db_creds)
 
-        # Specify the start messageId
-        start_message_id = MessageIDs.fetch_latest_messageid(db_creds)
+    if not start_message_id:
+        start_message_id = None
 
-        if not start_message_id:
-            start_message_id = None
+    print(f'Previous message ID: {start_message_id}')
 
-        print(f'Previous message ID: {start_message_id}')
+    messages = get_messages_after_specific_message(gmail, start_message_id, label_ids=['Label_3935809748622434433'])
 
-        messages = get_messages_after_specific_message(gmail, start_message_id, label_ids=['Label_3935809748622434433'])
-
+    if messages:
         for message in messages:
             process_message(gmail, message['id'], save_to_db_= True, db_creds = db_creds)
 
         latest_message_id = get_latest_message_id(gmail, messages)
         MessageIDs.add_messageid(latest_message_id, db_creds)
-
-    except Exception as error:
-        # TODO(developer) - Handle errors from gmail API.
-        print(f"An error occurred: {error}")
