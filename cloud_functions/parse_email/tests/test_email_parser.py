@@ -2,12 +2,14 @@ from lib.parse_helpers import (
     parse_email_body, 
     get_messages_after_specific_message, 
     process_message, 
-    get_latest_message_id
+    get_latest_message_id,
+    get_date_received
 )
 import uuid
 import datetime
 from dotenv import load_dotenv
 import os
+import json
 
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
@@ -31,12 +33,27 @@ def sort_email_messages(gmail_client, messages):
         full_messages.append(msg)
 
     message_ids_n_dates = [
-        {'id': full_message['id'], 'internalDate': full_message['internalDate']}
+        {'id': full_message['id'], 'date_received': get_date_received(full_message)}
         for full_message in full_messages
     ]
 
-    sorted_messages = sorted(message_ids_n_dates, key=lambda msg: int(msg['internalDate']))
+    sorted_messages = sorted(message_ids_n_dates, key=lambda msg: int(msg['date_received']))
     return sorted_messages
+
+def test_get_date_received():
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
+
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    full_message = gmail.users().messages().get(userId='me', id='18e71fe33ef1b7aa').execute()
+    date_received = get_date_received(full_message)
+    assert date_received == 1711309468
+
 
 def test_parse_email_body():
     example_bofa_email = """
@@ -92,6 +109,7 @@ def test_parse_email_body():
 
     assert updated_at_timestamp >= timestamp_before_parsing
 
+
 def test_parse_email_body_on_unforwarded_email_with_html():
     with open('./tests/data/sample_html_payload.txt', 'r') as f:
         html_payload = f.read()
@@ -113,6 +131,7 @@ def test_parse_email_body_on_unforwarded_email_with_html():
 
     assert updated_at_timestamp >= timestamp_before_parsing
 
+
 def test_get_messages_after_specific_message_with_no_message_id():
     # Create credentials
     creds = Credentials.from_authorized_user_info({
@@ -125,17 +144,23 @@ def test_get_messages_after_specific_message_with_no_message_id():
 
     # Get messages for "Testing for Email Parser" label
     messages = get_messages_after_specific_message(gmail, label_ids = ['Label_7814975169765856594'])
+    temp = []
+    for message in messages:
+        full_message = gmail.users().messages().get(userId='me', id=message['id']).execute()
+        temp.append((message['id'], get_date_received(full_message)))
+    
     sorted_messages = sort_email_messages(gmail, messages)
     
     # As of 3/20/24, this label should only have 4 messages
     expected_messages = [
-        {'id': '18dced81bdd8b94e', 'internalDate': '1708572276000'}, 
-        {'id': '18dcef1c5b9281d1', 'internalDate': '1708573956000'}, 
-        {'id': '18e362f2ae442dc7', 'internalDate': '1710306043000'},
-        {'id': '18e4f00dd55eb102', 'internalDate': '1710722430000'}
+        {'id': '18dced81bdd8b94e', 'date_received': 1708572286}, 
+        {'id': '18dcef1c5b9281d1', 'date_received': 1708573967}, 
+        {'id': '18e362f2ae442dc7', 'date_received': 1710306045},
+        {'id': '18e4f00dd55eb102', 'date_received': 1710722440}
     ]
-
+    
     assert sorted_messages == expected_messages
+
 
 def test_get_messages_after_specific_message_with_message_id():
     # Create credentials
@@ -154,15 +179,16 @@ def test_get_messages_after_specific_message_with_message_id():
         label_ids = ['Label_7814975169765856594']
     )
     sorted_messages = sort_email_messages(gmail, messages)
-
+    
     # We should only see the latter two messages from the prior test
     expected_messages = [
-        {'id': '18dcef1c5b9281d1', 'internalDate': '1708573956000'}, 
-        {'id': '18e362f2ae442dc7', 'internalDate': '1710306043000'},
-        {'id': '18e4f00dd55eb102', 'internalDate': '1710722430000'}
+        {'id': '18dcef1c5b9281d1', 'date_received': 1708573967}, 
+        {'id': '18e362f2ae442dc7', 'date_received': 1710306045},
+        {'id': '18e4f00dd55eb102', 'date_received': 1710722440}
     ]
     
     assert sorted_messages == expected_messages
+
 
 def test_process_message():
 # def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = None):
@@ -191,6 +217,7 @@ def test_process_message():
     }
 
     assert updated_at_timestamp >= start_timestamp
+
 
 def test_get_latest_message_id():
     # Create credentials

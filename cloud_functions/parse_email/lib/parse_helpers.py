@@ -6,6 +6,7 @@ import uuid
 import datetime
 import base64
 import email
+from email.utils import parsedate_to_datetime
 
 from models.financial_transaction import FinancialTransaction
 from db_utils.db_functions import save_to_db
@@ -69,6 +70,29 @@ def parse_email_body(email_body):
     
     return data_json
 
+
+def get_date_received(full_message):
+
+    headers = full_message['payload']['headers']
+    
+    for header in headers:
+        if header['name'] == 'Received':
+            text = header['value']
+
+            pattern = r'\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} -\d{4} \(\w{3}\)'
+            # parse text for date received and convert to Unix timestamp (# of seconds since January 1st, 1970)
+            match = re.search(pattern, text)
+            assert match, f"Unable to find date received for message with id {full_message['id']}"
+
+            # Convert date string to unix time
+            date_string = match.group()
+            dt = parsedate_to_datetime(date_string)
+            unix_time = dt.timestamp()
+            return int(unix_time)
+    
+    assert False, f"Did not find header with name 'Received' for message with id {full_message['id']}"
+
+
 def get_messages_after_specific_message(
     gmail_client, 
     message_id = None, 
@@ -79,21 +103,22 @@ def get_messages_after_specific_message(
         results = gmail_client.users().messages().list(userId='me', labelIds=label_ids).execute()
         messages = results.get('messages', [])
     else:
-        # Get the internal date of the specified message
+        # Get the date received of the specified message
         message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
-        internal_date_for_comparison = int(message['internalDate']) // 1000 # Convert to seconds
+        date_received_for_comparison = get_date_received(message)
 
         # Get the list of messages
-        results = gmail_client.users().messages().list(userId='me', labelIds=label_ids,q=f'after:{internal_date_for_comparison}').execute()
-
-        # Gmail API after: operator is not accurate to the second, so we may still get messages before the provided message
-        # Here, we filter the retrieved messages based on InternalDate
+        # Adding 60 second buffer to ensure we don't miss any emails - we will get extra emails that may already be in the database, but we will filter these out next
+        results = gmail_client.users().messages().list(userId='me', labelIds=label_ids,q=f'after:{int(date_received_for_comparison) - 60}').execute()
+        
+        # Here, we filter the retrieved messages based on the date received
         unfiltered_messages = results.get('messages', [])
         messages = []
+        
         for message in unfiltered_messages:
             full_message = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
-            internal_date = int(full_message['internalDate']) // 1000
-            if internal_date > internal_date_for_comparison:
+            date_received = get_date_received(full_message)
+            if date_received > date_received_for_comparison:
                 messages.append(message)
 
     return messages
@@ -135,11 +160,12 @@ def get_latest_message_id(gmail_client, messages):
 
     assert messages, "No messages provided, cannot get latest message ID"
 
-    # Retrieve full message details and sort by internal date
+    # Retrieve full message details and sort by date received
     full_messages = []
     for message in messages:
         msg = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
         full_messages.append(msg)
 
-    sorted_messages = sorted(full_messages, key=lambda msg: int(msg['internalDate']))
+    sorted_messages = sorted(full_messages, key=lambda msg: get_date_received(msg))
     return sorted_messages[-1]['id']
+            
