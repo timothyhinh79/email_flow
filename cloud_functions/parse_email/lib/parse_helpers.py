@@ -29,7 +29,7 @@ def access_secret_version(project_id, secret_id, version_id, service_account_fil
     # Return the decoded payload.
     return json.loads(response.payload.data.decode('UTF-8'))
 
-def parse_email_body(email_body):
+def parse_credit_card_transaction(email_body):
     amount_pattern = r"Amount:.*?\*\$([\d,]+\.\d{2})\*"
     date_pattern = r"Date:.*?\*(\w+\s\d{2},\s\d{4})\*"
     where_pattern = r"Where:\s*\*(.*?)\*"
@@ -142,7 +142,7 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
             body = mime_msg.get_payload()
 
         # Parse full message body and create db record
-        data_json = parse_email_body(body)
+        data_json = parse_credit_card_transaction(body)
         data_json['message_id'] = message_id
         data_json['id'] = uuid.uuid5(uuid.NAMESPACE_DNS, message_id)
 

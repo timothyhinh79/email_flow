@@ -1,5 +1,5 @@
 from lib.parse_helpers import (
-    parse_email_body, 
+    parse_credit_card_transaction, 
     get_messages_after_specific_message, 
     process_message, 
     get_latest_message_id,
@@ -55,7 +55,7 @@ def test_get_date_received():
     assert date_received == 1711309468
 
 
-def test_parse_email_body():
+def test_parse_credit_card_transaction():
     example_bofa_email = """
         From: Bank of America <onlinebanking@ealerts.bankofamerica.com>
         Date: Wed, Feb 28, 2024, 18:07
@@ -93,7 +93,7 @@ def test_parse_email_body():
     """
 
     timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
-    data_json = parse_email_body(example_bofa_email)
+    data_json = parse_credit_card_transaction(example_bofa_email)
 
     data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
     updated_at_timestamp = data_json['updated_at']
@@ -110,12 +110,12 @@ def test_parse_email_body():
     assert updated_at_timestamp >= timestamp_before_parsing
 
 
-def test_parse_email_body_on_unforwarded_email_with_html():
+def test_parse_credit_card_transaction_on_unforwarded_email_with_html():
     with open('./tests/data/sample_html_payload.txt', 'r') as f:
         html_payload = f.read()
 
     timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
-    data_json = parse_email_body(html_payload)
+    data_json = parse_credit_card_transaction(html_payload)
 
     data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
     updated_at_timestamp = data_json['updated_at']
