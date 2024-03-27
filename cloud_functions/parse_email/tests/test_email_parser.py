@@ -99,7 +99,7 @@ def test_parse_email_body():
     updated_at_timestamp = data_json['updated_at']
 
     assert data_json_wo_time == {
-        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['4.99', 'February 28, 2024', 'PAYPAL TWITCHINTER'])),
+        # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['4.99', 'February 28, 2024', 'PAYPAL TWITCHINTER'])),
         'transaction_type': 'credit',
         'amount': '4.99',
         'transaction_date': 'February 28, 2024',
@@ -121,7 +121,7 @@ def test_parse_email_body_on_unforwarded_email_with_html():
     updated_at_timestamp = data_json['updated_at']
 
     assert data_json_wo_time == {
-        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['7.99', 'March 07, 2024', 'Hulu 877-8244858 CA'])),
+        # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['7.99', 'March 07, 2024', 'Hulu 877-8244858 CA'])),
         'transaction_type': 'credit',
         'amount': '7.99',
         'transaction_date': 'March 07, 2024',
@@ -203,11 +203,10 @@ def test_process_message():
 
     start_timestamp = datetime.datetime.now(datetime.timezone.utc)
     data_json = process_message(gmail, message_id = '18e362f2ae442dc7', save_to_db_ = False)
-    data_json['id'] = str(data_json['id'])
     updated_at_timestamp = data_json.pop('updated_at')
     
     assert data_json == {
-        'id': '2d9936c7-77e4-57ca-b99a-46a37c602aa1', 
+        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e362f2ae442dc7'),
         'message_id': '18e362f2ae442dc7',
         'transaction_type': 'credit', 
         'amount': '4.99', 

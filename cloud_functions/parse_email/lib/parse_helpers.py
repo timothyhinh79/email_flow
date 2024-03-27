@@ -59,7 +59,7 @@ def parse_email_body(email_body):
     transaction_type = 'credit'
 
     data_json = {
-        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([amount, date, where])),
+        # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([amount, date, where])),
         'transaction_type': transaction_type,
         'amount': amount,
         'transaction_date': date,
@@ -149,6 +149,7 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
         # Parse full message body and create db record
         data_json = parse_email_body(body)
         data_json['message_id'] = message_id
+        data_json['id'] = uuid.uuid5(uuid.NAMESPACE_DNS, message_id)
 
         if save_to_db_:
             save_to_db(FinancialTransaction, data_json, db_creds=db_creds)   
