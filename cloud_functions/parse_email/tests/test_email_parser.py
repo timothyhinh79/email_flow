@@ -175,12 +175,13 @@ def test_get_messages_after_specific_message_with_message_id():
     # Get messages for "Testing for Email Parser" label after the first message
     messages = get_messages_after_specific_message(
         gmail, 
-        message_id = '18dced81bdd8b94e',
+        message_id = '18dcef1c5b9281d1',
         label_ids = ['Label_7814975169765856594']
     )
     sorted_messages = sort_email_messages(gmail, messages)
     
-    # We should only see the latter two messages from the prior test
+    # We should get messages appearing after 18dcef1c5b9281d1 AND message 18dcef1c5b9281d1 as well (due to 60-second buffer)
+    # It's okay to get the same message, because save_to_db() will not add duplicate transaction records
     expected_messages = [
         {'id': '18dcef1c5b9281d1', 'date_received': 1708573967}, 
         {'id': '18e362f2ae442dc7', 'date_received': 1710306045},

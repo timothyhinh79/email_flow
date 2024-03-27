@@ -109,17 +109,12 @@ def get_messages_after_specific_message(
 
         # Get the list of messages
         # Adding 60 second buffer to ensure we don't miss any emails - we will get extra emails that may already be in the database, but we will filter these out next
-        results = gmail_client.users().messages().list(userId='me', labelIds=label_ids,q=f'after:{int(date_received_for_comparison) - 60}').execute()
-        
-        # Here, we filter the retrieved messages based on the date received
-        unfiltered_messages = results.get('messages', [])
-        messages = []
-        
-        for message in unfiltered_messages:
-            full_message = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
-            date_received = get_date_received(full_message)
-            if date_received > date_received_for_comparison:
-                messages.append(message)
+        results = gmail_client.users().messages().list(
+            userId='me', 
+            labelIds=label_ids,q=f'after:{int(date_received_for_comparison) - 60}'
+        ).execute()
+
+    messages = results.get('messages', [])
 
     return messages
 
