@@ -66,7 +66,7 @@ def test_parse_email_body():
         [image: Bank of America.]
         Credit card transaction exceeds alert limit you set
         Customized Cash Rewards Visa Signature* ending in 3057*
-        Amount: *$4.99*
+        Amount: *$4,000.99*
         Date: *February 28, 2024*
         Where: *PAYPAL TWITCHINTER*
         View details
@@ -101,7 +101,7 @@ def test_parse_email_body():
     assert data_json_wo_time == {
         # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['4.99', 'February 28, 2024', 'PAYPAL TWITCHINTER'])),
         'transaction_type': 'credit',
-        'amount': '4.99',
+        'amount': 4000.99,
         'transaction_date': 'February 28, 2024',
         'description': 'PAYPAL TWITCHINTER',
         'category': None
@@ -123,7 +123,7 @@ def test_parse_email_body_on_unforwarded_email_with_html():
     assert data_json_wo_time == {
         # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join(['7.99', 'March 07, 2024', 'Hulu 877-8244858 CA'])),
         'transaction_type': 'credit',
-        'amount': '7.99',
+        'amount': 7.99,
         'transaction_date': 'March 07, 2024',
         'description': 'Hulu 877-8244858 CA',
         'category': None
@@ -210,7 +210,7 @@ def test_process_message():
         'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e362f2ae442dc7'),
         'message_id': '18e362f2ae442dc7',
         'transaction_type': 'credit', 
-        'amount': '4.99', 
+        'amount': 4.99, 
         'transaction_date': 'March 13, 2024', 
         'description': 'PAYPAL  TWITCHINTER', 
         'category': None

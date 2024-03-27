@@ -61,7 +61,7 @@ def parse_email_body(email_body):
     data_json = {
         # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([amount, date, where])),
         'transaction_type': transaction_type,
-        'amount': amount,
+        'amount': float(amount.replace(',','')),
         'transaction_date': date,
         'description': where,
         'category': None,
