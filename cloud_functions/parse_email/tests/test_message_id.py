@@ -25,7 +25,7 @@ def db_setup():
     query = text("""
         DROP TABLE IF EXISTS message_ids_test;
         CREATE TABLE message_ids_test (
-                id VARCHAR,
+                id VARCHAR primary key,
                 message_id VARCHAR,
                 updated_at TIMESTAMPTZ
         );

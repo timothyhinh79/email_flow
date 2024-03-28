@@ -25,7 +25,7 @@ def db_setup():
     query = text("""
         DROP TABLE IF EXISTS financial_transactions_test;
         CREATE TABLE financial_transactions_test (
-                id VARCHAR,
+                id VARCHAR primary key,
                 message_id VARCHAR,
                 transaction_type VARCHAR,
                 amount FLOAT,
@@ -43,7 +43,6 @@ def db_setup():
     with engine.connect() as connection:
         result = connection.execute(query)
         
-    # breakpoint()
     yield result
 
     # Define your SQL query
@@ -153,7 +152,7 @@ def test_save_to_db_when_id_already_exists(db_setup):
         sql = 'SELECT * FROM financial_transactions_test', 
         db_creds = db_creds,
     )
-
+    
     assert records == [
 
         ('1', 'message_id_1', 'debit', 100.0, 

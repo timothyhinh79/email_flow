@@ -26,26 +26,21 @@ def get_pk_field(model: Type[DeclarativeMeta]):
 
 def save_to_db(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCredentials):
 
-    # Confirm if Primary Key value already exists in table. If so, do not save to database
+    try:
+        engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
-    pk_field = get_pk_field(model)
-    sql_to_find_id = f"""
-        SELECT * 
-        FROM {model.__table_args__['schema']}.{model.__tablename__} 
-        WHERE {pk_field}::VARCHAR = '{data_json[pk_field]}'
-    """
-    res = query(sql_to_find_id, db_creds)
-    if res:
-        print(f"Record with {pk_field} = '{data_json[pk_field]}' already exists in {model.__table_args__['schema']}.{model.__tablename__} ")
-        return
-    
-    # If Primary Key value does not exist, proceed with saving to database
-    engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
-    Session = sessionmaker(bind=engine)
-    session = Session()
+        new_transaction = model(**data_json)
 
-    new_transaction = model(**data_json)
+        session.add(new_transaction)
+        session.commit()
+        session.close()
 
-    session.add(new_transaction)
-    session.commit()
-    session.close()
+    except Exception as e:
+        
+        if str(e)[:33] == '(psycopg2.errors.UniqueViolation)':
+            pk_field = get_pk_field(model)
+            print(f"Record with id {data_json[pk_field]} already exists in {model.__table_args__['schema']}.{model.__tablename__}")
+        else:
+            raise # raise original Exception

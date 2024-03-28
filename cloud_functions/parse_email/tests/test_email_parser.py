@@ -192,7 +192,7 @@ def test_get_messages_after_specific_message_with_message_id():
 
 
 def test_process_message():
-# def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = None):
+
     # Create credentials
     creds = Credentials.from_authorized_user_info({
         'client_id': GOOGLE_CLIENT_ID, 

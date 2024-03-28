@@ -180,13 +180,15 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
         full_message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
         data_json['transaction_date'] = datetime.datetime.utcfromtimestamp(get_date_received(full_message))
 
-    if data_json and save_to_db_:
+    if data_json:
 
         # add message ID and UUID
         data_json['message_id'] = message_id
         data_json['id'] = uuid.uuid5(uuid.NAMESPACE_DNS, message_id) 
 
-        save_to_db(FinancialTransaction, data_json, db_creds=db_creds)  
+        if save_to_db_:
+
+            save_to_db(FinancialTransaction, data_json, db_creds=db_creds)  
 
     return data_json
     
