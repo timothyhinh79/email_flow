@@ -34,6 +34,7 @@ def parse_credit_card_transaction(email_body):
     date_pattern = r"Date:.*?\*(\w+\s\d{2},\s\d{4})\*"
     where_pattern = r"Where:\s*\*(.*?)\*"
     
+    # re.DOTALL flag ensures that '.' pattern matches newlines
     amount_search = re.search(amount_pattern, email_body, re.DOTALL)
     date_search = re.search(date_pattern, email_body, re.DOTALL)
     where_search = re.search(where_pattern, email_body, re.DOTALL)
@@ -59,11 +60,34 @@ def parse_credit_card_transaction(email_body):
     transaction_type = 'credit'
 
     data_json = {
-        # 'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([amount, date, where])),
         'transaction_type': transaction_type,
         'amount': float(amount.replace(',','')),
         'transaction_date': date,
         'description': where,
+        'category': None,
+        'updated_at': datetime.datetime.now(datetime.timezone.utc)
+    }
+    
+    return data_json
+
+
+def parse_zelle_transfer(email_body):
+   
+    transfer_desc_pattern = r"You sent \$([\d,]+\.\d{2}) to ([\w\s]+?)[\s]*</td>"
+    message_pattern = r"Your message.*?<b>\s*([\w\s]+?)\s*</b>"
+
+    transfer_desc_search = re.search(transfer_desc_pattern, email_body, re.DOTALL)
+    message_search = re.search(message_pattern, email_body, re.DOTALL)
+    assert transfer_desc_search and message_search, "Unable to find ""You sent $... to ..."" and message description within Zelle transfer email"
+
+    amount = transfer_desc_search.group(1)
+    recipient = transfer_desc_search.group(2) # TODO: figure out where to save this info
+    message = message_search.group(1)
+
+    data_json = {
+        'transaction_type': 'credit',
+        'amount': float(amount.replace(',','')),
+        'description': message,
         'category': None,
         'updated_at': datetime.datetime.now(datetime.timezone.utc)
     }
@@ -127,30 +151,43 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
     subject = mime_msg['subject']
     assert subject, f"No subject found in message with id {message['id']}"
 
+    # Extract full message body
+    body = ''
+    message_main_type = mime_msg.get_content_maintype()
+    if message_main_type == 'multipart':
+        for part in mime_msg.get_payload():
+            if part.get_content_maintype() == 'text':
+                body += part.get_payload()
+    elif message_main_type == 'text':
+        body = mime_msg.get_payload()
+    
     data_json = None
-    # For credit card transaction email alerts, grab desired data
+
+    # Grab desired data from each type of email
+    
+    # Credit card transaction email alerts
     if subject == 'Credit card transaction exceeds alert limit you set':
 
-        # Extract full message body
-        body = ''
-        message_main_type = mime_msg.get_content_maintype()
-        if message_main_type == 'multipart':
-            for part in mime_msg.get_payload():
-                if part.get_content_maintype() == 'text':
-                    body += part.get_payload()
-        elif message_main_type == 'text':
-            body = mime_msg.get_payload()
-
         # Parse full message body and create db record
-        data_json = parse_credit_card_transaction(body)
-        data_json['message_id'] = message_id
-        data_json['id'] = uuid.uuid5(uuid.NAMESPACE_DNS, message_id)
-
-        if save_to_db_:
-            save_to_db(FinancialTransaction, data_json, db_creds=db_creds)   
+        data_json = parse_credit_card_transaction(body) 
     
+    # Zelle transfers
+    elif re.search(r"You sent \$[\d,]+\.\d{2} to ", subject, re.DOTALL):
+
+        data_json = parse_zelle_transfer(body)
+        full_message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
+        data_json['transaction_date'] = get_date_received(full_message)
+
+    if data_json and save_to_db_:
+
+        # add message ID and UUID
+        data_json['message_id'] = message_id
+        data_json['id'] = uuid.uuid5(uuid.NAMESPACE_DNS, message_id) 
+
+        save_to_db(FinancialTransaction, data_json, db_creds=db_creds)  
+
     return data_json
-        
+    
 
 def get_latest_message_id(gmail_client, messages):
 
