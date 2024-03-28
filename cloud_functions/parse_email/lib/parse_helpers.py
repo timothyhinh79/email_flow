@@ -175,8 +175,10 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
     elif re.search(r"You sent \$[\d,]+\.\d{2} to ", subject, re.DOTALL):
 
         data_json = parse_zelle_transfer(body)
+
+        # Get timestamp of when email was received and used that as the transaction date
         full_message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
-        data_json['transaction_date'] = get_date_received(full_message)
+        data_json['transaction_date'] = datetime.datetime.utcfromtimestamp(get_date_received(full_message))
 
     if data_json and save_to_db_:
 
@@ -201,4 +203,3 @@ def get_latest_message_id(gmail_client, messages):
 
     sorted_messages = sorted(full_messages, key=lambda msg: get_date_received(msg))
     return sorted_messages[-1]['id']
-            
