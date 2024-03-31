@@ -30,6 +30,8 @@ def access_secret_version(project_id, secret_id, version_id, service_account_fil
     return json.loads(response.payload.data.decode('UTF-8'))
 
 def parse_credit_card_transaction(email_body):
+
+    # Find details on the amount, transaction date, and "where" transaction occurred
     amount_pattern = r"Amount:.*?\*\$([\d,]+\.\d{2})\*"
     date_pattern = r"Date:.*?\*(\w+\s\d{2},\s\d{4})\*"
     where_pattern = r"Where:\s*\*(.*?)\*"
@@ -57,10 +59,9 @@ def parse_credit_card_transaction(email_body):
     date = date_search.group(1)
     where = where_search.group(1)
 
-    transaction_type = 'credit'
-
+    # Set up data_json with relevant info to save to database
     data_json = {
-        'transaction_type': transaction_type,
+        'transaction_type': 'credit',
         'amount': float(amount.replace(',','')),
         'transaction_date': date,
         'description': where,
@@ -72,7 +73,8 @@ def parse_credit_card_transaction(email_body):
 
 
 def parse_zelle_transfer(email_body):
-   
+
+    # Find description of Zelle payment and the associated message
     transfer_desc_pattern = r"You sent \$([\d,]+\.\d{2}) to ([\w\s]+?)[\s]*</td>"
     message_pattern = r"Your message.*?<b>\s*([\w\s]+?)\s*</b>"
 
@@ -84,6 +86,7 @@ def parse_zelle_transfer(email_body):
     recipient = transfer_desc_search.group(2) # TODO: figure out where to save this info
     message = message_search.group(1)
 
+    # Set up data_json with relevant info to save to database
     data_json = {
         'transaction_type': 'credit',
         'amount': float(amount.replace(',','')),
@@ -99,11 +102,15 @@ def get_date_received(full_message):
 
     headers = full_message['payload']['headers']
     
+    # Extract the receipt date from the first header with name = 'Received'
+    # See following SO post for more details
+    # https://stackoverflow.com/questions/76260823/what-is-the-correct-timestamp-to-use-when-querying-gmail-api-by-epoch
     for header in headers:
         if header['name'] == 'Received':
-            text = header['value']
 
+            text = header['value']
             pattern = r'\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} -\d{4} \(\w{3}\)'
+            
             # parse text for date received and convert to Unix timestamp (# of seconds since January 1st, 1970)
             match = re.search(pattern, text)
             assert match, f"Unable to find date received for message with id {full_message['id']}"
@@ -123,16 +130,21 @@ def get_messages_after_specific_message(
     label_ids = []
 ):
     
+    # If no message id is provided, get all messages associated with provided label_id
     if not message_id:
         results = gmail_client.users().messages().list(userId='me', labelIds=label_ids).execute()
         messages = results.get('messages', [])
+
+    # Otherwise, get messages that occur after the provided message
     else:
+
         # Get the date received of the specified message
         message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
         date_received_for_comparison = get_date_received(message)
 
         # Get the list of messages
-        # Adding 60 second buffer to ensure we don't miss any emails - we will get extra emails that may already be in the database, but we will filter these out next
+        # Adding 60 second buffer to ensure we don't miss any emails
+        # We will get extra emails that may already be in the database (included the provided message), but save_to_db() should not add duplicate records for the same message id
         results = gmail_client.users().messages().list(
             userId='me', 
             labelIds=label_ids,q=f'after:{int(date_received_for_comparison) - 60}'
@@ -180,6 +192,7 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
         full_message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
         data_json['transaction_date'] = datetime.datetime.utcfromtimestamp(get_date_received(full_message))
 
+    # Finalize data_json and save to database
     if data_json:
 
         # add message ID and UUID
@@ -189,6 +202,7 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
         if save_to_db_:
 
             save_to_db(FinancialTransaction, data_json, db_creds=db_creds)  
+            print(f"Successfully saved record to database for message with id {message_id}")
 
     return data_json
     
