@@ -3,7 +3,8 @@ from lib.parse_helpers import (
     get_messages_after_specific_message, 
     process_message, 
     get_latest_message_id,
-    get_date_received
+    get_date_received,
+    parse_zelle_transfer
 )
 import uuid
 import datetime
@@ -65,7 +66,7 @@ def test_parse_credit_card_transaction():
 
         [image: Bank of America.]
         Credit card transaction exceeds alert limit you set
-        Customized Cash Rewards Visa Signature* ending in 3057*
+        Customized Cash Rewards Visa Signature* ending in 1234*
         Amount: *$4,000.99*
         Date: *February 28, 2024*
         Where: *PAYPAL TWITCHINTER*
@@ -131,6 +132,24 @@ def test_parse_credit_card_transaction_on_unforwarded_email_with_html():
 
     assert updated_at_timestamp >= timestamp_before_parsing
 
+def test_parse_zelle_transfer():
+    with open('./tests/data/sample_zelle_transfer_email_body.txt', 'r') as f:
+        zelle_email_payload = f.read()
+
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    data_json = parse_zelle_transfer(zelle_email_payload)
+
+    data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
+    updated_at_timestamp = data_json['updated_at']
+
+    assert data_json_wo_time == {
+        'transaction_type': 'credit',
+        'amount': 41.00,
+        'description': 'Fuego Cravings',
+        'category': None
+    }
+
+    assert updated_at_timestamp >= timestamp_before_parsing    
 
 def test_get_messages_after_specific_message_with_no_message_id():
     # Create credentials
@@ -191,7 +210,7 @@ def test_get_messages_after_specific_message_with_message_id():
     assert sorted_messages == expected_messages
 
 
-def test_process_message():
+def test_process_message_with_credit_card_transaction():
 
     # Create credentials
     creds = Credentials.from_authorized_user_info({
@@ -213,6 +232,34 @@ def test_process_message():
         'amount': 4.99, 
         'transaction_date': 'March 13, 2024', 
         'description': 'PAYPAL  TWITCHINTER', 
+        'category': None
+    }
+
+    assert updated_at_timestamp >= start_timestamp
+
+
+def test_process_message_with_zelle_transfer():
+
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
+
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    data_json = process_message(gmail, message_id = '18e82be57a7be56e', save_to_db_ = False)
+    updated_at_timestamp = data_json.pop('updated_at')
+    
+    assert data_json == {
+        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e82be57a7be56e'),
+        'message_id': '18e82be57a7be56e',
+        'transaction_type': 'credit', 
+        'amount': 1.00, 
+        'transaction_date': datetime.datetime(2024, 3, 28, 1, 48, 16), 
+        'description': 'Test', 
         'category': None
     }
 

@@ -122,11 +122,21 @@
 
  body[yahoo] .tdMobZ2tbllabel3 { display: block !important; font-size:16px !important; padding-bottom:0px !important; line-height:20px !important; text-align:left !important; width:100% !important;}
 
+ body[yahoo] .tdMobZ2tbllabel3a { display: block !important; font-size:16px !important; padding-bottom:0px !important; line-height:20px !important; text-align:left !important; width:100% !important; padding-bottom:12px}
+
+ body[yahoo] .tdMobZ2tbllabel3a1 { display: block !important; font-size:16px !important; padding-bottom:0px !important; line-height:20px !important; text-align:left !important; width:100% !important; padding-bottom:30px}
+
  body[yahoo] .tdMobZ2tblData { font-size:16px !important;line-height:20px !important; text-align:left !important;}
 
  body[yahoo] .tdMobZ2tblData1 { font-size:16px !important;line-height:24px !important; text-align:left !important; padding-bottom:12px !important;}
 
  body[yahoo] .tdMobZ2tblData2 { font-size:16px !important;line-height:24px !important; text-align:left !important; width:175px !important;}
+
+ body[yahoo] .tdMobZ2atblData2 { font-size:16px !important;line-height:24px !important; text-align:right !important; width:175px !important;}
+
+ body[yahoo] .tdMobZ2atblData2a { font-size:16px !important;line-height:24px !important; text-align:right !important; width:175px !important; padding-bottom:12px}
+
+ body[yahoo] .tdMobZ2atblData2a1 { font-size:16px !important;line-height:24px !important; text-align:right !important; width:175px !important; padding-bottom:30px}
 
  body[yahoo] .tdMobContentZ2Font { display: block !important;font-size:18px !important;} 
 
@@ -426,6 +436,10 @@
 
  body[yahoo] .tblMobZ5Content-BA360-2 {  text-align:left !important;align:center !important; padding-bottom:20px !important;   font-size:16px !important; line-height:20px !important;}
 
+ body[yahoo] .tblMobZ5aContent-BA360 {  text-align:right !important;align:center !important; padding-bottom:12px !important;   font-size:16px !important; line-height:20px !important;}
+
+ body[yahoo] .tblMobZ5aContent-BA360-1 {  text-align:right !important;align:center !important; padding-bottom:10px !important;   font-size:16px !important; line-height:20px !important;}
+
  body[yahoo] .tblMobZ5TopPadding-BA360 { padding-top:20px !important;}
 
  body[yahoo] .tblMobZ3ButtonPadding-BA360 { padding-bottom:10px !important;}
@@ -586,367 +600,505 @@
 
       <td align="center" valign="top">
 
-      <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table cellspacing="0" cellpadding="0" border="0" width="100%">
+      <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table class="tdMobZ1tbl" width="100%" align="center" bgcolor="#ffffff" border="0" bordercolor="" cellpadding="0" cellspacing="0"> 
 
-<tr>
+  <!-- Zone1 - Begins--> 
 
- <td align="center" valign="top">
+  <tr> 
 
- <table cellspacing="0" cellpadding="0" border="0" width="100%">
+    <td class="tdMobAlertImage" style="text-align:center;padding-top:40px;padding-bottom:20px;margin:0px;valign:top;"> 
 
-  <tr>
+      <img class="imgMobSize70x70" id="image-Zone1" src="https://www.bankofamerica.com/content/images/ContextualSiteGraphics/alerts/success_blue_105x105.png" border="0" alt="" height="105px" width="105px"> 
 
-   </tr></table><table class="tdMobZ1tbl2" align="center" bgcolor="#ffffff" border="0" bordercolor="" cellpadding="0" cellspacing="0">
+    </td> 
 
-    <!-- Zone1 - Begins-->
+  </tr> 
 
-    <tr>
+  <tr> 
 
-     <td class="tdMobAlertImage" style="text-align:center;padding-top:40px;padding-bottom:0px;margin:0px;valign:top;">
+    <td class="tdMobZ1BottomPadding30px" valign="top" align="top" style="font-size:36px; font-family: Connections,arial; color:#000000; padding-bottom:0px;padding-top:20px; float:center; text-align:center; valign:top;">   You sent $41.00 to John Doe
 
-     <img class="imgMobSize70x70" id="image-Zone1" src="https://www.bankofamerica.com/content/images/ContextualSiteGraphics/alerts/desktop_icon_digital_wallet_onecard_105x105.png" border="0" alt="" height="105px" width="105px">
+    </td> 
 
-     </td>
+  </tr> 
 
-    </tr>
+  <!-- Zone1 - Ends--> 
 
-    <tr>     
+  <!--horizontal line begins mob view--> 
 
-     <!-- tdMobZ1BottomNew-->
+  <tr> 
 
-     <td class="tdMobZ1BottomPadding30px" valign="top" align="top" style="font-size:36px; font-family: Connections, arial; color:#000000; padding-bottom:40px;padding-top:40px; float:center; text-align:center; valign:top;">
+    <td class="tdMobHr" style="display:none; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all; padding-top:0px; padding-bottom:0px;"> 
 
-     Credit card transaction exceeds alert limit you set
+      <table cellpadding="0" cellspacing="0" border="0" style="background-color:#FFFFFF; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;"> 
 
-     </td>     
+        <tr> 
 
-    </tr>
+          <td class="tdMobContentHr" width="335px" style="display:none; font-size:1px; height:1px; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;" colspan="2" bgcolor="#D3D3D3" height="1">
 
-    <!--horizontal line begins mob view-->
+          </td> 
 
-    <tr>
+        </tr> 
 
-     <td class="tdMobHr" style="display:none; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all; padding-top:0px; padding-bottom:0px;">
+      </table> 
 
-     <table cellpadding="0" cellspacing="0" border="0" style="background-color:#FFFFFF; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;">
+    </td> 
 
-      <tr>
+  </tr> 
 
-       <td class="tdMobContentHr" width="335px" style="display:none; font-size:1px; height:1px; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;" colspan="2" bgcolor="#D3D3D3" height="1"></td>
+  <!--horizontal line mob view  ends--> 
 
-      </tr>
+  <!--horizontal line begins desktop view--> 
 
-     </table>
+  <tr> 
 
-     </td>
+    <td class="tdDeskHr" style="display:block; padding-top:40px; padding-bottom:0px; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;" colspan="2">
 
-    </tr>
+    </td>          
 
-    <!--horizontal line mob view  ends-->
+  </tr> 
 
-    <!--horizontal line begins desktop view-->
+  <tr> 
 
-    <tr>
+    <td class="tdDeskContentHr" width="600px" style="display:block; font-size:1px; height:1px; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;" colspan="2" bgcolor="#D3D3D3" height="1">
 
-     <td>
+    </td> 
 
-     </td></tr><tr>
+  </tr>   
 
-      <td class="tdDeskHr" style="display:block; padding-top:0px; padding-bottom:0px; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;" colspan="2"></td>
+  <!--horizontal line  desktop view ends--> 
 
-     </tr>
+</table>  
 
-     <tr>
+<!--zone2 begins-->   
 
-      <td class="tdDeskContentHr" width="600px" style="display:block; font-size:1px; height:1px; mso-table-lspace:0pt; mso-table-rspace:0pt;mso-hide:all;" colspan="2" bgcolor="#D3D3D3" height="1"></td>
+<!-- Zone 2 Data table - Begins --> 
 
-     </tr>
-
-     
-
-    
-
-    <!--horizontal line  desktop view ends-->
-
-    <!-- Zone1 - Ends-->
-
-   </table>
-
-  </td></tr>
+<table class="tdMobZ2tbl" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">  
 
   <tr>
 
-   <td style="padding-top:0px;">
-
-   <!-- Zone2 Begins -->
-
-   <table class="tdMobZ2tbl" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">    
-
-     
-
-     
-
-     
-
-    
-
-    <tr>
-
-     <td class="tdMobZ2TopPadding30px" style="padding-bottom:0px; padding-top:40px">
-
-     <!-- Zone 2 Data table - Begins -->
-
-     <table class="tdMobZ2tbl" style="margin-right:25px" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="Left">
-
-      <tr>
-
-       <td class="tblMobZ3Content5" style="line-height:32px; mso-line-height-rule: exactly;padding-bottom:40px; padding-right:0px;font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000; " valign="top">
-
-       Customized Cash Rewards Visa Signature<b> ending in 1234</b>
-
-       </td>
-
-      </tr>
-
-     </table>
-
-     <!-- Zone 2 Data table - Ends -->
-
-     </td>
-
-    </tr>
-
-    <tr>
-
-     <td class="tdMobZ2TopPadding30px" style="padding-bottom:0px; padding-top:0px">
-
-     <!-- Zone 2 Data table - Begins -->
-
-     <table class="tdMobZ2tbl" style="margin-right:25px" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="Left">
-
-      <tr>
-
-       <td class="tdMobZ2tbllabel2" style="line-height:32px; mso-line-height-rule: exactly;padding-bottom:0px; padding-right:0px;font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000; " valign="top">
-
-       Amount:
-
-       </td>
-
-       <td class="tdMobZ2tblData" style="mso-line-height-rule: exactly;line-height:32px; padding-bottom:0px; padding-left:20px; font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000;" valign="top">
-
-       <b>$7.99</b>
-
-       </td>
-
-      </tr>
-
-      <tr>
-
-       
-
-       <td class="tdMobZ2tbllabel2" style="line-height:32px; mso-line-height-rule: exactly;padding-bottom:0px; padding-right:0px;font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000; " valign="top">
-
-       Date:
-
-       </td>
-
-       <td class="tdMobZ2tblData" style="mso-line-height-rule: exactly;line-height:32px; padding-bottom:0px; padding-left:20px; font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000;" valign="top">
-
-       <b>March 07, 2024</b>
-
-       </td>
-
-      </tr>
-
-      <tr>
-
-       <td class="tdMobZ2tbllabel2" style="line-height:32px; mso-line-height-rule: exactly;padding-bottom:0px; padding-right:0px;font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000; " valign="top">
-
-       Where:
-
-       </td>
-
-       <td class="tdMobZ2tblData" style="mso-line-height-rule: exactly;line-height:32px; padding-bottom:0px; padding-left:20px; font-family: Connections Light, arial; font-weight:normal; text-align:left; font-size:22px; color:#000000;" valign="top">
-
-       <b>Hulu 877-8244858 CA</b>
-
-       </td>
-
-      </tr>
-
-      
-
-     </table>
-
-     <!-- Zone 2 Data table - Ends -->
-
-     </td>
-
-    </tr>
-
-    
-
-   
-
-   
-
-   <!-- Zone2 - Ends-->
-
-  
-
-  <tr><td style="padding-top:0px;">
-
-  <!-- Zone 3 Table - Begins -->
-
-  <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
-
-   <tr>
-
-    
-
-    <td class="tdMobHeaderImage" style="padding-bottom:0px;padding-top:40px" align="center">
-
-    <table>
-
-     <!-- Primary CTA Button - Begins--> 
-
-     <tr>
-
-      <td class="tdMobButtonZ4" align="center" bgcolor="#0052C2" style="mso-padding-alt: 10px 40px;">
-
-      <a class="tdMobButtonZ4" href="https://www.bankofamerica.com/deeplink/redirect.go?target=bofasignin&screen=Accounts:Home&version=7.0.0" style="font-family: Connections,arial;font-size:30px; color:#FFFFFF; display: inline-block;border-left:0px solid #0052C2; border-right:0px solid #0052C2; border-top:0px solid #0052C2; border-bottom: 0px solid #0052C2; background-color:#0052C2; line-height:68px; width:240px; text-decoration:none;-webkit-text-size-adjust:none;" aria-label="View account details">
-
-      View details</a>
-
-      </td>
-
-      <!-- Primary CTA Button - Ends -->
-
-     </tr>
-
-    </table>
+    <td class="tblMobZ3Content9New1" style="padding-top:40px; ">
 
     </td>
 
-   </tr>
-
-   
-
-  </table>
-
-  <!-- Zone 3 Table - Ends -->
-
-  </td>
-
-  </tr><tr>
-
-   <td>
-
-   <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
-
-    <!-- Zone4 - Begins -->
-
-    <tr>
-
-     <td class="tdMobZ3TopPadding30px tblMobZ3Content5" style="font-family: Connections, arial; font-weight:normal;text-align:left;padding-top:40px; padding-bottom:0px; padding-left: 0px; font-size:22px; line-height:28px; color:#000000;" valign="bottom" align="left">
-
-     If you made this purchase or payment but don't recognize the amount, wait until the final purchase amount has posted before filing a dispute claim.
-
-     </td>
-
-    </tr>
-
-    
-
-    
-
-    <!-- Zone4 - Ends -->
-
-   </table>
-
-   </td>
-
   </tr>
 
   <tr>
 
-   <td>
+    <td>
 
-   <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
+      <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
 
-    <!-- Zone5 - Begins -->
+        <tr style="background: rgb(255, 255, 255);">
 
-    <tr>
+          <th class="tblMobZ5Content-BA360-1" style="padding: 0px 0px 20px 0px; width: 210px; text-align: left; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;" valign="top">Sent from account
 
-     <td class="tblMobZ1topbottompadding30" style="font-family: Connections, arial; font-weight:normal;text-align:left;padding-top:40px; padding-bottom:0px; padding-left: 0px; font-size:22px; line-height:28px; color:#000000;" valign="bottom" align="left">
+          </th> 
 
-     If you don't recognize this activity, please contact us at the number on the back of your card.
+          <td class="tblMobZ5aContent-BA360" style="padding: 0px 0px 20px; width: 210px; text-align: right; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;color:#000000;" valign="top">
 
-     </td>
+            <b>
 
-    </tr>
+              ending in 1234 
 
-    <!-- Zone5 - Ends -->
+            </b>
 
-   </table>
+          </td> 
 
-   </td>
+        </tr>
 
-  </tr>
+      </table>
 
-  <tr>
-
-   <td>
-
-   <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
-
-    <!-- Zone6 - Begins -->
-
-    <tr>
-
-     <td class="tblMobZ3Content2" style="font-family: Connections, arial; font-weight:normal;text-align:left;padding-top:40px; padding-bottom:20px; padding-left: 0px; font-size:22px; line-height:28px; color:#000000;" valign="bottom" align="left">
-
-     <b>Did you know?</b>
-
-     </td>
-
-    </tr>
-
-    <tr>
-
-     <td class="tblMobZ3Content5" style="font-family: Connections, arial; font-weight:normal;text-align:left;padding-top:0px; padding-bottom:0px; padding-left: 0px; font-size:22px; line-height:28px; color:#000000;" valign="bottom" align="left">
-
-     You can choose how you get alerts from us including text messages and mobile notifications. <a href="https://www.bankofamerica.com/deeplink/redirect.go?target=alerts_settings&screen=Alerts:Home&gotoSetting=true&version=7.1.0" style="text-decoration:none; color:#0052c2">Go to Alert Settings</a>
-
-     </td>
-
-    </tr>
-
-    
-
-    <!-- Zone6 - Ends -->
-
-   </table>
-
-   </td>
+    </td>
 
   </tr>
 
-  <!-- footer - Begins -->
+  <!--horizontal line begins mob view--> 
+
+  <tr> 
+
+    <td class="tdMobHr" style="padding-top: 0px; padding-bottom: 0px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;"> 
+
+      <table style="background-color: rgb(255, 255, 255); mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" border="0" cellspacing="0" cellpadding="0"> 
+
+        <tr> 
+
+          <td width="335px" height="1" class="tdMobContentHr" style="height: 1px; font-size: 1px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+          </td> 
+
+        </tr> 
+
+      </table> 
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line mob view  ends--> 
+
+  <!--horizontal line begins desktop view--> 
+
+  <tr> 
+
+    <td class="tdDeskHr" style="padding-top: 0px; padding-bottom: 0px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" colspan="2">
+
+    </td>
+
+  </tr> 
+
+  <tr> 
+
+    <td width="100%" class="tdDeskContentHr" style="height: 1px; font-size: 1px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line  desktop view ends--> 
+
+  
+
+  
 
   <tr>
 
-   <td>
+    <td>
 
-   <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
+      <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
 
-    <tr>
+        <tr style="background: rgb(255, 255, 255);">
 
-     <td class="" colspan="2" style="padding-bottom:0px; padding-top:0px; font-family: Connections, arial; font-weight:normal; text-align:left; font-size:22px; line-height:28px; color:#000000;" valign="bottom" align="left">
+          <th class="tblMobZ5Content-BA360-1" style="padding: 15px 0px 20px 0px; width: 210px; text-align: left; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;" valign="top">To
 
-     <footer>
+          </th> 
 
-     <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table class="footer-class" align="center" border="0" width="100%">
+          <td class="tblMobZ5aContent-BA360" style="padding: 15px 0px 20px; width: 210px; text-align: right; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;color:#000000;" valign="top">     
+
+            <b> 
+
+              123-456-7890 </b>
+
+          </td> 
+
+        </tr>
+
+      </table>
+
+    </td>
+
+  </tr>
+
+  <!--horizontal line begins mob view--> 
+
+  <tr> 
+
+    <td class="tdMobHr" style="padding-top: 0px; padding-bottom: 0px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;"> 
+
+      <table style="background-color: rgb(255, 255, 255); mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" border="0" cellspacing="0" cellpadding="0"> 
+
+        <tr> 
+
+          <td width="335px" height="1" class="tdMobContentHr" style="height: 1px; font-size: 1px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+          </td> 
+
+        </tr> 
+
+      </table> 
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line mob view  ends--> 
+
+  <!--horizontal line begins desktop view--> 
+
+  <tr> 
+
+    <td class="tdDeskHr" style="padding-top: 0px; padding-bottom: 0px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" colspan="2">
+
+    </td>
+
+  </tr> 
+
+  <tr> 
+
+    <td width="100%" class="tdDeskContentHr" style="height: 1px; font-size: 1px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+    </td> 
+
+  </tr> 
+
+  
+
+  <!--horizontal line  desktop view ends--> 
+
+   <tr>
+
+    <td>
+
+      <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
+
+        <tr style="background: rgb(255, 255, 255);">
+
+          <th class="tblMobZ5Content-BA360-1" style="padding: 15px 0px 20px 0px; width: 210px; text-align: left; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;" valign="top">Your message
+
+          </th> 
+
+          <td class="tblMobZ5aContent-BA360" style="padding: 15px 0px 20px; width: 250px; text-align: right; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;color:#000000;" valign="top">
+
+            <b>
+
+              Fuego Cravings
+
+            </b>
+
+          </td> 
+
+        </tr>
+
+      </table>
+
+    </td>
+
+  </tr>
+
+  <!--horizontal line begins mob view--> 
+
+  <tr> 
+
+    <td class="tdMobHr" style="padding-top: 0px; padding-bottom: 0px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;"> 
+
+      <table style="background-color: rgb(255, 255, 255); mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" border="0" cellspacing="0" cellpadding="0"> 
+
+        <tr> 
+
+          <td width="335px" height="1" class="tdMobContentHr" style="height: 1px; font-size: 1px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+          </td> 
+
+        </tr> 
+
+      </table> 
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line mob view  ends--> 
+
+  <!--horizontal line begins desktop view--> 
+
+  <tr> 
+
+    <td class="tdDeskHr" style="padding-top: 0px; padding-bottom: 0px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" colspan="2">
+
+    </td>
+
+  </tr> 
+
+  <tr> 
+
+    <td width="100%" class="tdDeskContentHr" style="height: 1px; font-size: 1px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line  desktop view ends--> 
+
+  
+
+</table> 
+
+<!-- Zone 2 Data table - Ends -->
+
+<!-- Zone 2 Data table - Ends -->   
+
+<!--zone2 ends--> 
+
+<!-- zone3 begins-->   
+
+<!-- Zone 3 Table - Begins --> 
+
+<table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center"> 
+
+  <tr> 
+
+    <td class="tblMobZ4ButtonPadding" style="padding-bottom:40px;padding-top:40px" align="center"> 
+
+      <table> 
+
+        <!-- Primary CTA Button - Begins--> 
+
+        <tr> 
+
+          <td class="tdMobButtonZ4" align="center" bgcolor="#0052C2" style="mso-padding-alt: 15px 40px;"> 
+
+            <a class="tdMobButtonZ4" href="https://www.bankofamerica.com/deeplink/redirect.go?target=transfer&screen=Transfers:Home&version=7.0.0" style="font-family: Connections,arial;font-size:30px; color:#FFFFFF; display: inline-block;border-left:0px solid #0052C2; border-right:0px solid #0052C2; border-top:0px solid #0052C2; border-bottom: 0px solid #0052C2; background-color:#0052C2; line-height:68px; width:315px; text-decoration:none;-webkit-text-size-adjust:none;text-align:center;white-space:nowrap;"> View your balance</a> 
+
+          </td> 
+
+          <!-- Primary CTA Button - Ends --> 
+
+        </tr> 
+
+      </table> 
+
+    </td> 
+
+  </tr> 
+
+</table> 
+
+<table class="tdMobZ2tbl" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">  
+
+  <!--horizontal line  desktop view ends--> 
+
+   <tr>
+
+    <td>
+
+      <table class="tblMobZ3" width="100%" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center">
+
+        <tr style="background: rgb(255, 255, 255);">
+
+          <th class="tblMobZ5Content-BA360-1" style="padding: 15px 0px 20px 0px; width: 210px; text-align: left; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;" valign="top">Confirmation
+
+          </th> 
+
+          <td class="tblMobZ5aContent-BA360" style="padding: 15px 0px 20px; width: 250px; text-align: right; line-height: 29px; font-family: Connections,arial; font-size: 22px; font-weight: normal;color:#000000;" valign="top">
+
+            <b>
+
+              <a href="#" style="text-decoration: none; color:#000000">          aaaabbbbb
+
+              </a> 
+
+            </b>
+
+          </td> 
+
+        </tr>
+
+      </table>
+
+    </td>
+
+  </tr>
+
+  <!--horizontal line begins mob view--> 
+
+  <tr> 
+
+    <td class="tdMobHr" style="padding-top: 0px; padding-bottom: 0px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;"> 
+
+      <table style="background-color: rgb(255, 255, 255); mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" border="0" cellspacing="0" cellpadding="0"> 
+
+        <tr> 
+
+          <td width="335px" height="1" class="tdMobContentHr" style="height: 1px; font-size: 1px; display: none; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+          </td> 
+
+        </tr> 
+
+      </table> 
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line mob view  ends--> 
+
+  <!--horizontal line begins desktop view--> 
+
+  <tr> 
+
+    <td class="tdDeskHr" style="padding-top: 0px; padding-bottom: 0px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" colspan="2">
+
+    </td>
+
+  </tr> 
+
+  <tr> 
+
+    <td width="100%" class="tdDeskContentHr" style="height: 1px; font-size: 1px; display: block; mso-table-lspace: 0pt; mso-table-rspace: 0pt; mso-hide: all;" bgcolor="#d3d3d3" colspan="2">
+
+    </td> 
+
+  </tr> 
+
+  <!--horizontal line  desktop view ends--> 
+
+  
+
+</table>
+
+<!-- Zone 3 Table - Ends -->   
+
+<!--zone3 ends--> 
+
+<!-- zone4 begins--> 
+
+<!-- zone4 ends--> 
+
+<!-- Zone 5 Table - Begins --> 
+
+<table class="tblMobZ3" width="600" valign="bottom" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" align="center"> 
+
+  <tr> 
+
+    <td class="tblMobZ3Content9center" colspan="2" style="padding-bottom:40px;padding-toP:40px; font-family: Connections,arial; font-weight:normal; text-align:center; font-size:22px; line-height:28px; color:#000000;" valign="bottom" align="left"> If you didn't make this payment, 
+
+      <a name="contact us" style="color: rgb(0, 82, 194); text-decoration: none;" href="https://www.bankofamerica.com/contactus/contactus.go?request_locale=en_US">contact us</a> 
+
+    </td> 
+
+  </tr> 
+
+  <!--[if mso]> <center>  <![endif]--> 
+
+  <tr> 
+
+    <td class="" style="text-align:center; padding-top:0px; padding-bottom:20px; margin:0px;valign:top;"> 
+
+      <img class="imgMobBrandingZ5" height="29px" width="296px" style="padding-left:0px; padding-right:0px;" id="image-Zone1" src="https://www.bankofamerica.com/content/images/ContextualSiteGraphics/alerts/desktop_Bofa_Zelle_logos_350x26.png" alt="Bank of America together with Zelle logo" border="0" title="Bofa Zelle logo"> 
+
+    </td> 
+
+  </tr> 
+
+</table> 
+
+<!-- Zone 5 Table - Ends -->   
+
+<!--zone 6 end--> 
+
+<!-- Zone 7 - footnote - Begins -->
+
+<table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table class="tblMobFootnoteZ7" align="center" max-width="500px"> 
+
+  
+
+  <tr> 
+
+   <td class="tdMobFootnoteZ74" width="450" align="top" style="font-size:13px; font-family: Connections, arial; font-weight:Regular;  color:#666666;padding-bottom:0px; padding-top:0px;line-height:18px; float:center; text-align:center; valign:top;"> <a name="footnote" id="footnote" style="text-decoration:none;"></a>Zelle� and the Zelle� related marks are wholly owned by Early Warning Services, LLC, and are used herein under license. Bank of America and the Bank of America logo are registered trademarks of Bank of America Corporation. </td> 
+
+  </tr> 
+
+  
+
+</table></td></tr></table> 
+
+<!-- Zone 7 - footnote - Ends -->
+
+<!-- Zone 8 - footer - Begins -->
+
+<table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="min-width: 100%; " class="stylingblock-content-wrapper"><tr><td class="stylingblock-content-wrapper camarker-inner"><table class="footer-class" align="center" border="0" width="100%">
 
 <tr>
 
@@ -956,9 +1108,9 @@
 
   <tr>
 
-   <td class="tdMobFooter" width="" valign="bottom" align="top" style="font-size:13px; font-family: Connections Light, arial; font-weight:lighter; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:8px; padding-top:0px; line-height:18px;float:center; text-align:center; valign:top;">
+   <td class="tdMobFooter" width="" valign="bottom" align="top" style="font-size:13px; font-family: Connections, arial; font-weight:Regular; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:8px; padding-top:0px; line-height:18px;float:center; text-align:center; valign:top;">
 
-   We'll never ask for your personal information such as SSN or ATM PIN in email messages. If you get an email that looks suspicious or you are not the intended recipient of this email, don't click on any links. Instead, forward to <a href="#" style="pointer-events: none; cursor: default;color: #666666; text-decoration: none;">abuse@bankofamerica.com</a> then delete it.
+   We'll never ask for your personal information such as SSN or ATM PIN in email messages. If you get an email that looks suspicious or you are not the intended recipient of this email, don't click on any links. Instead, forward to <a href="#" aria-label="abuse@bankofamerica.com" style="pointer-events: none; cursor: default;color: #666666; text-decoration: none; ">abuse@bankofamerica.com</a> then delete it.
 
    </td>
 
@@ -966,7 +1118,7 @@
 
   <tr>
 
-   <td class="tdMobFooter1" width="" valign="bottom" align="top" style="font-size:13px; font-family: Connections Light, arial; font-weight:lighter; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:8px; padding-top:0px; float:center; text-align:center; valign:top;">
+   <td class="tdMobFooter1" width="" valign="bottom" align="top" style="font-size:13px; font-family: Connections, arial; font-weight:Regular; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:8px; padding-top:0px; float:center; text-align:center; valign:top;">
 
    Please don't reply to this automatically generated service email.
 
@@ -982,15 +1134,15 @@
 
     <tr>
 
-     <td class="tdMobFooter" style="font-family: Connections, arial; font-weight:lighter; text-align:left; font-size:13px; color:#0052C2; padding-bottom:8px; line-height:18px; padding-left:20px; padding-right:20px;">
+     <td class="tdMobFooter2New" style="font-family: Connections, arial; font-weight:Regular; text-align:left; font-size:13px; color:#0052C2; padding-bottom:8px; line-height:18px; padding-left:20px; padding-right:20px;">
 
-     <a href="https://www.bankofamerica.com/privacy/consumer-privacy-notice.go" name="privacy_notice" style="text-decoration:none;color:#0052C2">Privacy Notice</a><span style="color:#000000;"></span>
+     <a href="https://www.bankofamerica.com/privacy/consumer-privacy-notice.go" name="privacy_notice" style="text-decoration:none;color:#0052C2" aria-label="Privacy Notice">Privacy Notice</a><span style="color:#000000;"></span>
 
      </td>
 
-     <td class="tdMobFooter" style="font-family: Connections, arial; font-weight:lighter; text-align:left; font-size:13px; color:#0052C2; padding-bottom:8px; line-height:18px; padding-left:20px; padding-right:20px;">
+     <td class="tdMobFooter2New" style="font-family: Connections, arial; font-weight:Regular; text-align:left; font-size:13px; color:#0052C2; padding-bottom:8px; line-height:18px; padding-left:20px; padding-right:20px;">
 
-     <a href="https://www.bankofamerica.com/help/equalhousing.cfm" name="equal_housing_lender" style="text-decoration:none;color:#0052C2">Equal Housing Lender <img src="https://www.bankofamerica.com/content/images/ContextualSiteGraphics/alerts/desktop_icon_equalhousing.png" style="border:none"></a><br>
+     <a href="https://www.bankofamerica.com/help/equalhousing.cfm" name="equal_housing_lender" style="text-decoration:none;color:#0052C2" aria-label="Equal Housing Lender">Equal Housing Lender <img src="https://www.bankofamerica.com/content/images/ContextualSiteGraphics/alerts/desktop_icon_equalhousing.png" style="border:none"></a><br>
 
      </td>
 
@@ -1010,9 +1162,9 @@
 
     <tr>
 
-     <td class="tdMobFooter2" width="" valign="bottom" align="top" style="line-height:16px; font-size:13px; font-family: Connections Light, arial; font-weight:lighter; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:0px; padding-top:0px; float:center; text-align:center; valign:top;">
+     <td class="tdMobFooter2" width="" valign="bottom" align="top" style="line-height:16px; font-size:13px; font-family: Connections, arial; font-weight:Regular; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:0px; padding-top:0px; float:center; text-align:center; valign:top;">
 
-     Bank of America, N.A. Member FDIC
+     Bank of America, N.A. Member FDIC.
 
      </td>
 
@@ -1032,9 +1184,9 @@
 
     <tr>
 
-     <td class="tdMobFooter2" width="" valign="bottom" align="top" style="line-height:16px; font-size:13px; font-family: Connections, arial; font-weight:lighter; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:20px; padding-top:0px; float:center; text-align:center; valign:top;">
+     <td class="tdMobFooter2" width="" valign="bottom" align="top" style="line-height:16px; font-size:13px; font-family: Connections, arial; font-weight:Regular; color:#666666;padding-left:0px; padding-right:0px; padding-bottom:20px; padding-top:0px; float:center; text-align:center; valign:top;">
 
-     &copy; 2024 Bank of America Corporation
+     &copy; 2024 Bank of America Corporation.
 
      </td>
 
@@ -1054,33 +1206,9 @@
 
   </table></td></tr></table>
 
-     </footer>
+<!-- Zone 8 - footer - Ends --> 
 
-     </td>
-
-    </tr>
-
-   </table>
-
-   </td>
-
-  </tr>
-
-  <!-- footer - Ends -->
-
- </table>
-
- </td>
-
-</tr>
-
-</table></td></tr></table> 
-
-
-
-
-
-
+</td></tr></table>
 
 </td></tr></table></td>
 
@@ -1100,7 +1228,7 @@
 
 </table>
 
-<img src="http://click.ealerts.bankofamerica.com/open.aspx?ffcb10-fe8611797d62017b77-fdf015717d640d747d177172-fe3c11727764047d741479-fec61574706c057b-fdf215747d63047f7c127576-fe93107877660d7c77&bmt=0" width="1" height="1" alt="">
+<img src="http://click.ealerts.bankofamerica.com/open.aspx?ffcb10-fe8812727360017472-fdf015717d640d747d177172-fe3c11727764047d741479-fec61574706c057b-fdf215747d63047f7c127576-fe9316727d61047e7d&bmt=0" width="1" height="1" alt="">
 
 </body>
 
