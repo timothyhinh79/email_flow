@@ -98,6 +98,35 @@ def parse_zelle_transfer(email_body):
     return data_json
 
 
+def parse_direct_deposit(email_body):
+
+    # Find description of Zelle payment and the associated message
+    amount_pattern = r"Amount:.*?<td.*?>\s*\$\s*</td>\s*<td.*?>\s*([\d,]+\.\d{2})\s*</td>"
+    transaction_date_pattern = r"On:.*?<td.*?>\s*(\w+\s\d{2},\s\d{4})\s*</td>"
+    sender_pattern = r"From:.*?<td.*?>\s*([\w\s]+?)\s*</td>"
+
+    amount_search = re.search(amount_pattern, email_body, re.DOTALL)
+    transaction_date_search = re.search(transaction_date_pattern, email_body, re.DOTALL)
+    sender_search = re.search(sender_pattern, email_body, re.DOTALL)
+    assert amount_search and transaction_date_search and sender_search, "Unable to find amount, transaction_date, and/or sender within Direct Deposit email"
+
+    amount = amount_search.group(1)
+    transaction_date = transaction_date_search.group(1)
+    sender = sender_search.group(1)
+
+    # Set up data_json with relevant info to save to database
+    data_json = {
+        'transaction_type': 'debit',
+        'amount': float(amount.replace(',','')),
+        'transaction_date': transaction_date,
+        'description': f'Sender: {sender}',
+        'category': None,
+        'updated_at': datetime.datetime.now(datetime.timezone.utc)
+    }
+    
+    return data_json
+
+
 def get_date_received(full_message):
 
     headers = full_message['payload']['headers']
@@ -191,6 +220,11 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
         # Get timestamp of when email was received and used that as the transaction date
         full_message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
         data_json['transaction_date'] = datetime.datetime.utcfromtimestamp(get_date_received(full_message))
+
+    # Direct Deposits
+    elif subject == 'Receipt: Direct Deposit Received':
+
+        data_json = parse_direct_deposit(body)
 
     # Finalize data_json and save to database
     if data_json:

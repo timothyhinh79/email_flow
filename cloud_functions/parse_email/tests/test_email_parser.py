@@ -4,7 +4,8 @@ from lib.parse_helpers import (
     process_message, 
     get_latest_message_id,
     get_date_received,
-    parse_zelle_transfer
+    parse_zelle_transfer,
+    parse_direct_deposit
 )
 import uuid
 import datetime
@@ -151,6 +152,26 @@ def test_parse_zelle_transfer():
 
     assert updated_at_timestamp >= timestamp_before_parsing    
 
+def test_parse_direct_deposit():
+    with open('./tests/data/sample_direct_dep_email_body.txt', 'r') as f:
+        direct_deposit_email_payload = f.read()
+
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    data_json = parse_direct_deposit(direct_deposit_email_payload)
+
+    data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
+    updated_at_timestamp = data_json['updated_at']
+
+    assert data_json_wo_time == {
+        'transaction_type': 'debit',
+        'amount': 101.00,
+        'transaction_date': 'March 19, 2024',
+        'description': 'Sender: John Doe',
+        'category': None
+    }
+
+    assert updated_at_timestamp >= timestamp_before_parsing 
+
 def test_get_messages_after_specific_message_with_no_message_id():
     # Create credentials
     creds = Credentials.from_authorized_user_info({
@@ -260,6 +281,34 @@ def test_process_message_with_zelle_transfer():
         'amount': 1.00, 
         'transaction_date': datetime.datetime(2024, 3, 28, 1, 48, 16), 
         'description': 'Test', 
+        'category': None
+    }
+
+    assert updated_at_timestamp >= start_timestamp
+
+
+def test_process_message_with_direct_deposit():
+
+    # Create credentials
+    creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_CLIENT_ID, 
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_REFRESH_TOKEN
+    })
+
+    gmail = build('gmail', 'v1', credentials=creds)
+
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    data_json = process_message(gmail, message_id = '18e55a5b8ebf4038', save_to_db_ = False)
+    updated_at_timestamp = data_json.pop('updated_at')
+    
+    assert data_json == {
+        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e55a5b8ebf4038'),
+        'message_id': '18e55a5b8ebf4038',
+        'transaction_type': 'debit', 
+        'amount': 473.00, 
+        'transaction_date': 'March 19, 2024', 
+        'description': 'Sender: FRANCHISE TAX BD CASTTAXRFD', 
         'category': None
     }
 
