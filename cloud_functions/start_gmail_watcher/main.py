@@ -32,7 +32,7 @@ def start_gmail_watcher(cloud_event):
     print("Pubsub Message")
     print(pubsub_msg)
 
-    api_secrets = access_secret_version('email-parser-414818', 'gmail_api_credentials', '6')
+    api_secrets = access_secret_version('email-parser-414818', 'gmail_api_credentials', '7')
 
     # Create credentials
     creds = Credentials.from_authorized_user_info({

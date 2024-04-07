@@ -20,7 +20,7 @@ def parse_data_and_save_to_db(cloud_event):
     print("Pubsub Message")
     print(pubsub_msg)
 
-    api_secrets = access_secret_version('email-parser-414818', 'gmail_api_credentials', '6')
+    api_secrets = access_secret_version('email-parser-414818', 'gmail_api_credentials', '7')
     db_creds_json = access_secret_version('email-parser-414818', 'gmail_logger_postgres_credentials', '1')
     db_creds = DBCredentials(
         host = db_creds_json['DB_HOST'],
