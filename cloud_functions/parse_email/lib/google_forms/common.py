@@ -40,3 +40,33 @@ def create_google_form(
     print(get_result)
 
     return get_result
+
+
+def create_google_form_watch(google_creds, form_id, event_type, topic_name):
+
+    request = { 
+        "watch": {
+            "eventType": event_type, # Required. Which event type to watch for.
+            "target": {
+                "topic": {
+                    "topicName": topic_name, # Required. A fully qualified Pub/Sub topic name to publish the events to. This topic must be owned by the calling project and already exist in Pub/Sub.
+                },
+            },
+        },
+    }
+
+    DISCOVERY_DOC = "https://forms.googleapis.com/$discovery/rest?version=v1"
+
+    form_service = discovery.build(
+        "forms",
+        "v1",
+        credentials=google_creds,
+        discoveryServiceUrl=DISCOVERY_DOC,
+        static_discovery=False,
+    )
+
+    # Creates the initial form
+    result = form_service.forms().watches().create(formId=form_id, body=request).execute()
+
+    return result
+
