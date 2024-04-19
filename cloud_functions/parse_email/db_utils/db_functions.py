@@ -44,3 +44,24 @@ def save_to_db(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCreden
             print(f"Record with id {data_json[pk_field]} already exists in {model.__table_args__['schema']}.{model.__tablename__}")
         else:
             raise # raise original Exception
+
+def update_record(
+    model: Type[DeclarativeMeta], 
+    db_creds: DBCredentials, 
+    id: str, 
+    field: str, 
+    new_value: str
+):
+    
+    engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Query the record you want to update
+    record = session.query(model).filter_by(id=id).first()
+
+    # Update the record
+    setattr(record, field, new_value)
+
+    # Commit the changes
+    session.commit()
