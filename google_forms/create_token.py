@@ -7,17 +7,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GOOGLE_REFRESH_TOKEN = os.getenv('GOOGLE_REFRESH_TOKEN')
-
+# Define access scopes to be granted for Google Forms API
 SCOPES = ["https://www.googleapis.com/auth/forms.body","https://www.googleapis.com/auth/forms.responses.readonly"]
 DISCOVERY_DOC = "https://forms.googleapis.com/$discovery/rest?version=v1"
 
+# Define client_secrets_json containing Client ID + Client Secret
+client_secrets_json = "credentials/client_secrets.json"
+
+# Define where token.json should be generated, containing the Refresh Token
 token_json = "credentials/token.json"
 
+# Invoke OAuth2 Flow to securely grant permission for Google Forms API scoped access
 store = file.Storage(token_json)
-creds = None
-
-flow = client.flow_from_clientsecrets("credentials/client_secrets.json", SCOPES)
+flow = client.flow_from_clientsecrets(client_secrets_json, SCOPES)
 creds = tools.run_flow(flow, store)
