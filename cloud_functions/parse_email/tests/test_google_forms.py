@@ -4,6 +4,7 @@ from lib.google_forms.common import (
 )
 from lib.google_forms.transaction_categorization.categorize_transaction_question import generate_transaction_categorization_question
 from lib.google_forms.transaction_categorization.process_categorization_submission import process_categorization_submission
+from lib.google_drive.google_drive import delete_file
 from db_utils.db_functions import DBCredentials, query
 from models.financial_transaction import FinancialTransactionTest
 
@@ -24,6 +25,9 @@ DB_DATABASE = os.getenv('DB_DATABASE')
 GOOGLE_FORM_CLIENT_ID = os.getenv('GOOGLE_FORM_CLIENT_ID')
 GOOGLE_FORM_CLIENT_SECRET = os.getenv('GOOGLE_FORM_CLIENT_SECRET')
 GOOGLE_FORM_REFRESH_TOKEN = os.getenv('GOOGLE_FORM_REFRESH_TOKEN')
+GOOGLE_DRIVE_CLIENT_ID = os.getenv('GOOGLE_DRIVE_CLIENT_ID')
+GOOGLE_DRIVE_CLIENT_SECRET = os.getenv('GOOGLE_DRIVE_CLIENT_SECRET')
+GOOGLE_DRIVE_REFRESH_TOKEN = os.getenv('GOOGLE_DRIVE_REFRESH_TOKEN')
 
 @pytest.fixture()
 def db_setup():
@@ -73,18 +77,26 @@ def test_create_google_form_for_transaction_categorization():
     )
 
     # Create credentials
-    creds = Credentials.from_authorized_user_info({
+    form_creds = Credentials.from_authorized_user_info({
         'client_id': GOOGLE_FORM_CLIENT_ID, 
         'client_secret': GOOGLE_FORM_CLIENT_SECRET,
         'refresh_token': GOOGLE_FORM_REFRESH_TOKEN
     })
 
     form_result = create_google_form(
-        google_creds=creds,
+        google_creds=form_creds,
         google_form_title='Sample Form for Pytest',
         google_form_document_title='Categorize Financial Transaction',
         google_form_questions=question
     )
+
+    # Delete google form right away
+    drive_creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_DRIVE_CLIENT_ID, 
+        'client_secret': GOOGLE_DRIVE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_DRIVE_REFRESH_TOKEN
+    })
+    delete_file(drive_creds, form_result['formId'])
 
     assert form_result['info'] == {'title': 'Sample Form for Pytest', 'documentTitle': 'Categorize Financial Transaction'}
 
@@ -123,6 +135,14 @@ def test_create_google_form_watch():
         event_type='RESPONSES',
         topic_name='projects/email-parser-414818/topics/categorize-transactions-form-submissions'
     )
+
+    # Delete google form right away
+    drive_creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_DRIVE_CLIENT_ID, 
+        'client_secret': GOOGLE_DRIVE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_DRIVE_REFRESH_TOKEN
+    })
+    delete_file(drive_creds, form_result['formId'])
 
     assert watch_result['target'] == {'topic': {'topicName': 'projects/email-parser-414818/topics/categorize-transactions-form-submissions'}}
     assert watch_result['eventType'] == 'RESPONSES'
