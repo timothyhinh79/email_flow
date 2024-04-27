@@ -279,7 +279,7 @@ def test_process_message_with_zelle_transfer():
         'message_id': '18e82be57a7be56e',
         'transaction_type': 'credit', 
         'amount': 1.00, 
-        'transaction_date': datetime.datetime(2024, 3, 28, 1, 48, 16), 
+        'transaction_date': 'March 28, 2024', # datetime.datetime(2024, 3, 28, 1, 48, 16), 
         'description': 'Test', 
         'category': None
     }

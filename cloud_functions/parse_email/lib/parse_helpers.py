@@ -219,7 +219,7 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
 
         # Get timestamp of when email was received and used that as the transaction date
         full_message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
-        data_json['transaction_date'] = datetime.datetime.utcfromtimestamp(get_date_received(full_message))
+        data_json['transaction_date'] = datetime.datetime.utcfromtimestamp(get_date_received(full_message)).strftime("%B %d, %Y")
 
     # Direct Deposits
     elif subject == 'Receipt: Direct Deposit Received':
