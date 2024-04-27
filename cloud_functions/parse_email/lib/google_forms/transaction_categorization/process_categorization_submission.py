@@ -2,7 +2,6 @@ from apiclient import discovery
 import re
 
 from db_utils.db_functions import update_record
-from models.financial_transaction import FinancialTransaction
 
 def process_categorization_submission(google_creds, db_creds, model, form_id):
 
