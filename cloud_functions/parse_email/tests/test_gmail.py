@@ -21,16 +21,15 @@ def test_compose_and_send_email():
         'refresh_token': GOOGLE_GMAIL_REFRESH_TOKEN
     })
 
-    gmail = build('gmail', 'v1', credentials=creds)
-
     sent_message = compose_and_send_email(
-        service = gmail,
+        google_creds=creds,
         sender='tim098292@gmail.com',
         to='tim098292@gmail.com',
         subject='Pytest Email',
         body='Testing compose_and_send_email() in pytest'
     )
 
+    gmail = build('gmail', 'v1', credentials=creds)
     message = gmail.users().messages().get(userId='me', id=sent_message['id'], format = 'raw').execute()
     mime_msg = email.message_from_bytes(base64.urlsafe_b64decode(message['raw']))
     

@@ -16,7 +16,8 @@ def send_message(service, user_id, message):
     print('Message Id: %s' % message['id'])
     return message
 
-def compose_and_send_email(service, sender, to, subject, body):
+def compose_and_send_email(google_creds, sender, to, subject, body):
+    service = build('gmail', 'v1', credentials=google_creds)
     message = create_message(sender, to, subject, body)
     sent_message = send_message(service, "me", message)
     return sent_message
