@@ -45,6 +45,23 @@ def save_to_db(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCreden
         else:
             raise # raise original Exception
 
+def find_record(
+    model: Type[DeclarativeMeta], 
+    db_creds: DBCredentials, 
+    id: str,
+):
+    engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Query the record you want to update
+    record = session.query(model).filter_by(id=id).first()
+
+    session.close()
+
+    return record
+
+
 def update_record(
     model: Type[DeclarativeMeta], 
     db_creds: DBCredentials, 
@@ -65,3 +82,4 @@ def update_record(
 
     # Commit the changes
     session.commit()
+    session.close()

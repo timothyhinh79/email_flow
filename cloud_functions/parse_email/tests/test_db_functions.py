@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from models.financial_transaction import FinancialTransactionTest
-from db_utils.db_functions import query, save_to_db, get_pk_field, update_record
+from db_utils.db_functions import query, save_to_db, get_pk_field, update_record, find_record
 from classes.db_credentials import DBCredentials
 
 load_dotenv()
@@ -163,6 +163,29 @@ def test_save_to_db_when_id_already_exists(db_setup):
         
     ]
 
+def test_find_record(db_setup):
+    db_creds = DBCredentials(
+        host = DB_HOST,
+        port = DB_PORT,
+        user = DB_USER,
+        password = DB_PASSWORD,
+        database = DB_DATABASE
+    )
+
+    record = find_record(
+        model=FinancialTransactionTest,
+        db_creds=db_creds,
+        id='1',
+    )
+    
+    assert record.id == '1'
+    assert record.message_id == 'message_id_1'
+    assert record.transaction_type == 'debit'
+    assert record.amount == 100.0
+    assert record.transaction_date == datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc)
+    assert record.description == 'Sample Description'
+    assert record.category == 'Sample Category'
+    assert record.updated_at == datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)
 
 def test_update_record(db_setup):
     db_creds = DBCredentials(
