@@ -3,15 +3,6 @@ from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 from google.oauth2.credentials import Credentials
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-GOOGLE_DRIVE_CLIENT_ID = os.getenv('GOOGLE_DRIVE_CLIENT_ID')
-GOOGLE_DRIVE_CLIENT_SECRET = os.getenv('GOOGLE_DRIVE_CLIENT_SECRET')
-GOOGLE_DRIVE_REFRESH_TOKEN = os.getenv('GOOGLE_DRIVE_REFRESH_TOKEN')
-
 def delete_file(google_creds, file_id):
 
     # Build the service
