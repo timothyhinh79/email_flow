@@ -36,12 +36,14 @@ def save_to_db(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCreden
         session.add(new_transaction)
         session.commit()
         session.close()
+        return True
 
     except Exception as e:
         
         if str(e)[:33] == '(psycopg2.errors.UniqueViolation)':
             pk_field = get_pk_field(model)
             print(f"Record with id {data_json[pk_field]} already exists in {model.__table_args__['schema']}.{model.__tablename__}")
+            return False
         else:
             raise # raise original Exception
 

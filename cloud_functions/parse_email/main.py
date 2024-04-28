@@ -5,7 +5,9 @@ import base64
 import functions_framework
 
 from models.message_id import MessageIDs
+from models.financial_transaction import FinancialTransaction
 from classes.db_credentials import DBCredentials
+from db_utils.db_functions import save_to_db
 from lib.parse_helpers import (
     access_secret_version,
     get_messages_after_specific_message, 
@@ -76,7 +78,13 @@ def parse_data_and_save_to_db(cloud_event):
         for message in messages:
 
             # Process each transaction email and save relevant data to DB
-            data_json = process_message(gmail, message['id'], save_to_db_= True, db_creds = db_creds)
+            data_json = process_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
+
+            save_to_db_result = save_to_db(FinancialTransaction, data_json, db_creds)
+
+            # if record was not saved to database (because the record already existed), do no create google form
+            if not save_to_db_result:
+                continue
 
             # Create google form for categorizing the transaction
             subject = f"Categorize \"{data_json['description']}\" Transaction"
@@ -117,3 +125,5 @@ def parse_data_and_save_to_db(cloud_event):
         # Save the id of the latest message - this will be used in subsequent runs to quickly identify new transaction emails
         latest_message_id = get_latest_message_id(gmail, messages)
         MessageIDs.add_messageid(latest_message_id, db_creds)
+
+    print('Done')
