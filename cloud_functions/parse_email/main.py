@@ -1,6 +1,5 @@
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-import json
 import base64
 import functions_framework
 
@@ -8,15 +7,22 @@ from models.message_id import MessageIDs
 from models.financial_transaction import FinancialTransaction
 from classes.db_credentials import DBCredentials
 from db_utils.db_functions import save_to_db
-from lib.parse_helpers import (
-    access_secret_version,
-    get_messages_after_specific_message, 
-    process_message,
-    get_latest_message_id
+from lib.parsers import (
+    process_financial_transaction_message,
 )
-from lib.gmail.gmail import compose_and_send_email
-from lib.google_forms.common import create_google_form, create_google_form_watch
-from lib.google_forms.transaction_categorization.categorize_transaction_question import generate_transaction_categorization_question
+from lib.gcp.gcp import access_secret_version
+from lib.gmail.gmail import (
+    compose_and_send_email,
+    get_messages_after_specific_message,
+    get_latest_message_id,
+)
+from lib.google_forms.common import (
+    create_google_form, 
+    create_google_form_watch,
+)
+from lib.google_forms.transaction_categorization.categorize_transaction_question import (
+    generate_transaction_categorization_question,
+)
 
 @functions_framework.cloud_event
 def parse_data_and_save_to_db(cloud_event):
@@ -78,14 +84,14 @@ def parse_data_and_save_to_db(cloud_event):
         for message in messages:
 
             # Process each transaction email and save relevant data to DB
-            data_json = process_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
+            data_json = process_financial_transaction_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
 
             save_to_db_result = False
             if data_json:
                 save_to_db_result = save_to_db(FinancialTransaction, data_json, db_creds)
 
             # if record was not saved to database (because the record already existed or 
-            #   because the message was not meant to be parsed), do no create google form
+            #   because the message was not meant to be parsed), do not create google form
             if not save_to_db_result:
                 continue
 

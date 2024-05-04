@@ -6,28 +6,10 @@ import uuid
 import datetime
 import base64
 import email
-from email.utils import parsedate_to_datetime
 
 from models.financial_transaction import FinancialTransaction
 from db_utils.db_functions import save_to_db
-
-def access_secret_version(project_id, secret_id, version_id, service_account_file = None):
-
-    # Create Secret Manager client.
-    if service_account_file:
-        credentials = service_account.Credentials.from_service_account_file(service_account_file)
-        client = secretmanager.SecretManagerServiceClient(credentials = credentials)
-    else:
-        client = secretmanager.SecretManagerServiceClient()
-
-    # Build the resource name of the secret version.
-    name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
-
-    # Access the secret version.
-    response = client.access_secret_version(request={"name": name})
-
-    # Return the decoded payload.
-    return json.loads(response.payload.data.decode('UTF-8'))
+from lib.gmail.gmail import get_date_received
 
 def parse_credit_card_transaction(email_body):
 
@@ -127,63 +109,7 @@ def parse_direct_deposit(email_body):
     return data_json
 
 
-def get_date_received(full_message):
-
-    headers = full_message['payload']['headers']
-    
-    # Extract the receipt date from the first header with name = 'Received'
-    # See following SO post for more details
-    # https://stackoverflow.com/questions/76260823/what-is-the-correct-timestamp-to-use-when-querying-gmail-api-by-epoch
-    for header in headers:
-        if header['name'] == 'Received':
-
-            text = header['value']
-            pattern = r'\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} -\d{4} \(\w{3}\)'
-            
-            # parse text for date received and convert to Unix timestamp (# of seconds since January 1st, 1970)
-            match = re.search(pattern, text)
-            assert match, f"Unable to find date received for message with id {full_message['id']}"
-
-            # Convert date string to unix time
-            date_string = match.group()
-            dt = parsedate_to_datetime(date_string)
-            unix_time = dt.timestamp()
-            return int(unix_time)
-    
-    assert False, f"Did not find header with name 'Received' for message with id {full_message['id']}"
-
-
-def get_messages_after_specific_message(
-    gmail_client, 
-    message_id = None, 
-    label_ids = []
-):
-    
-    # If no message id is provided, get all messages associated with provided label_id
-    if not message_id:
-        results = gmail_client.users().messages().list(userId='me', labelIds=label_ids).execute()
-        messages = results.get('messages', [])
-
-    # Otherwise, get messages that occur after the provided message
-    else:
-
-        # Get the date received of the specified message
-        message = gmail_client.users().messages().get(userId='me', id=message_id).execute()
-        date_received_for_comparison = get_date_received(message)
-
-        # Get the list of messages
-        # Adding 60 second buffer to ensure we don't miss any emails
-        # We will get extra emails that may already be in the database (included the provided message), but save_to_db() should not add duplicate records for the same message id
-        results = gmail_client.users().messages().list(
-            userId='me', 
-            labelIds=label_ids,q=f'after:{int(date_received_for_comparison) - 60}'
-        ).execute()
-
-    messages = results.get('messages', [])
-
-    return messages
-
-def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = None):
+def process_financial_transaction_message(gmail_client, message_id, save_to_db_ = True, db_creds = None):
 
     message = gmail_client.users().messages().get(userId='me', id=message_id, format = 'raw').execute()
     mime_msg = email.message_from_bytes(base64.urlsafe_b64decode(message['raw']))
@@ -239,17 +165,3 @@ def process_message(gmail_client, message_id, save_to_db_ = True, db_creds = Non
             print(f"Successfully saved record to database for message with id {message_id}")
 
     return data_json
-    
-
-def get_latest_message_id(gmail_client, messages):
-
-    assert messages, "No messages provided, cannot get latest message ID"
-
-    # Retrieve full message details and sort by date received
-    full_messages = []
-    for message in messages:
-        msg = gmail_client.users().messages().get(userId='me', id=message['id']).execute()
-        full_messages.append(msg)
-
-    sorted_messages = sorted(full_messages, key=lambda msg: get_date_received(msg))
-    return sorted_messages[-1]['id']
