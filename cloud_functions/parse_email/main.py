@@ -80,9 +80,12 @@ def parse_data_and_save_to_db(cloud_event):
             # Process each transaction email and save relevant data to DB
             data_json = process_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
 
-            save_to_db_result = save_to_db(FinancialTransaction, data_json, db_creds)
+            save_to_db_result = False
+            if data_json:
+                save_to_db_result = save_to_db(FinancialTransaction, data_json, db_creds)
 
-            # if record was not saved to database (because the record already existed), do no create google form
+            # if record was not saved to database (because the record already existed or 
+            #   because the message was not meant to be parsed), do no create google form
             if not save_to_db_result:
                 continue
 
