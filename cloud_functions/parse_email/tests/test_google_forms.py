@@ -1,19 +1,15 @@
-from lib.google_forms.common import (
+from lib.google_forms.google_forms import (
     create_google_form,
     create_google_form_watch,
 )
-from lib.google_forms.transaction_categorization.categorize_transaction_question import generate_transaction_categorization_question
-from lib.google_forms.transaction_categorization.process_categorization_submission import process_categorization_submission
+from lib.google_forms.questions.categorize_transaction_question import generate_transaction_categorization_question
 from lib.google_drive.google_drive import delete_file
-from db_utils.db_functions import DBCredentials, query
-from models.financial_transaction import FinancialTransactionTest
 
 from google.oauth2.credentials import Credentials
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 import pytest
-import datetime
 
 load_dotenv()
 
@@ -147,49 +143,3 @@ def test_create_google_form_watch():
     assert watch_result['target'] == {'topic': {'topicName': 'projects/email-parser-414818/topics/categorize-transactions-form-submissions'}}
     assert watch_result['eventType'] == 'RESPONSES'
     assert watch_result['state'] == 'ACTIVE'
-
-
-def test_process_categorization_submission(db_setup):
-
-    # Set up DB credentials
-    db_creds = DBCredentials(
-        host = DB_HOST,
-        port = DB_PORT,
-        user = DB_USER,
-        password = DB_PASSWORD,
-        database = DB_DATABASE
-    )
-
-    # Create credentials
-    google_creds = Credentials.from_authorized_user_info({
-        'client_id': GOOGLE_FORM_CLIENT_ID, 
-        'client_secret': GOOGLE_FORM_CLIENT_SECRET,
-        'refresh_token': GOOGLE_FORM_REFRESH_TOKEN
-    })
-
-    form_response = process_categorization_submission(
-        google_creds, 
-        db_creds,
-        FinancialTransactionTest,
-        '1rhrxvgAvLIttaUXVGnlo_XBtxIJ-Vct6kwRLMdNkZ_8'
-    )
-    
-    assert form_response == {
-        'record_id': 'record-1',
-        'category': 'Entertainment'
-    }
-
-    records = query(
-        sql = 'SELECT * FROM financial_transactions_test', 
-        db_creds = db_creds,
-    )
-    
-    assert records == [
-
-        ('record-1', 'message_id_1', 'debit', 100.0, 
-        datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
-        'Sample Description', 
-        'Entertainment',
-        datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
-        
-    ]

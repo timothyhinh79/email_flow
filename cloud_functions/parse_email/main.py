@@ -16,11 +16,11 @@ from lib.gmail.gmail import (
     get_messages_after_specific_message,
     get_latest_message_id,
 )
-from lib.google_forms.common import (
+from lib.google_forms.google_forms import (
     create_google_form, 
     create_google_form_watch,
 )
-from lib.google_forms.transaction_categorization.categorize_transaction_question import (
+from lib.google_forms.questions.categorize_transaction_question import (
     generate_transaction_categorization_question,
 )
 

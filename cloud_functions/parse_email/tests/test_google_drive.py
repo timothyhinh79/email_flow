@@ -1,9 +1,7 @@
-from lib.google_forms.common import (
+from lib.google_forms.google_forms import (
     create_google_form,
-    create_google_form_watch,
 )
-from lib.google_forms.transaction_categorization.categorize_transaction_question import generate_transaction_categorization_question
-from lib.google_forms.transaction_categorization.process_categorization_submission import process_categorization_submission
+from lib.google_forms.questions.categorize_transaction_question import generate_transaction_categorization_question
 from lib.google_drive.google_drive import delete_file
 
 from googleapiclient.discovery import build
