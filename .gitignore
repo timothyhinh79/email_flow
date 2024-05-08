@@ -3,3 +3,4 @@ venv/
 sample_data/
 credentials/
 __pycache__/
+scratch/
