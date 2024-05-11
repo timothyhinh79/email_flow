@@ -57,8 +57,8 @@ def parse_credit_card_transaction(email_body):
 def parse_zelle_transfer(email_body):
 
     # Find description of Zelle payment and the associated message
-    transfer_desc_pattern = r"You sent \$([\d,]+\.\d{2}) to ([\w\s]+?)[\s]*</td>"
-    message_pattern = r"Your message.*?<b>\s*([\w\s]+?)\s*</b>"
+    transfer_desc_pattern = r"You sent \$([\d,]+\.\d{2}) to (.+?)[\s]*</td>"
+    message_pattern = r"Your message.*?<b>\s*(.+?)\s*</b>"
 
     transfer_desc_search = re.search(transfer_desc_pattern, email_body, re.DOTALL)
     message_search = re.search(message_pattern, email_body, re.DOTALL)
@@ -85,7 +85,7 @@ def parse_direct_deposit(email_body):
     # Find description of Zelle payment and the associated message
     amount_pattern = r"Amount:.*?<td.*?>\s*\$\s*</td>\s*<td.*?>\s*([\d,]+\.\d{2})\s*</td>"
     transaction_date_pattern = r"On:.*?<td.*?>\s*(\w+\s\d{2},\s\d{4})\s*</td>"
-    sender_pattern = r"From:.*?<td.*?>\s*([\w\s]+?)\s*</td>"
+    sender_pattern = r"From:.*?<td.*?>\s*(.+?)\s*</td>"
 
     amount_search = re.search(amount_pattern, email_body, re.DOTALL)
     transaction_date_search = re.search(transaction_date_pattern, email_body, re.DOTALL)
