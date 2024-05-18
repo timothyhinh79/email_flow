@@ -1,5 +1,7 @@
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from google.cloud import storage
+import tensorflow as tf
 import base64
 import functions_framework
 
@@ -23,6 +25,11 @@ from lib.google_forms.google_forms import (
 from lib.google_forms.questions.categorize_transaction_question import (
     generate_transaction_categorization_question,
 )
+
+categories_text = [
+    'Food', 'Personal & Miscellaneous', 'Savings & Investments',
+    'Entertainment', 'Education', 'Living Expenses'
+]
 
 @functions_framework.cloud_event
 def parse_data_and_save_to_db(cloud_event):
@@ -81,10 +88,24 @@ def parse_data_and_save_to_db(cloud_event):
     messages = get_messages_after_specific_message(gmail, start_message_id, label_ids=['Label_3935809748622434433'])
 
     if messages:
+
+        # Load classification model
+        gcs = storage.Client()
+        bucket = gcs.get_bucket('email-parser-ml-models')
+        model_file = 'financial_transactions_categorization_rnn_model.keras'
+        blob = bucket.blob(model_file)
+        blob.download_to_filename(model_file) 
+        model = tf.keras.models.load_model(model_file)
+
         for message in messages:
 
             # Process each transaction email and save relevant data to DB
             data_json = process_financial_transaction_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
+
+            # Predict category based on description
+            predicted_category = categories_text[model.predict([data_json['description']])[0].argmax(axis=-1)]
+            data_json['category_ml'] = predicted_category
+            data_json['category'] = predicted_category
 
             save_to_db_result = False
             if data_json:
@@ -103,10 +124,10 @@ def parse_data_and_save_to_db(cloud_event):
                 transaction_type=data_json['transaction_type'],
                 transaction_date=data_json['transaction_date'],
                 description=data_json['description'],
-                amount=data_json['amount']
+                amount=data_json['amount'],
+                category_ml=data_json['category_ml']
             )
 
-            # Set up a watch on the google form so that submissions trigger PubSub topic
             google_form = create_google_form(
                 google_creds=google_forms_creds, 
                 google_form_title='Categorize Financial Transaction',
@@ -114,6 +135,7 @@ def parse_data_and_save_to_db(cloud_event):
                 google_form_questions=question
             )
 
+            # Set up a watch on the google form so that submissions trigger PubSub topic
             create_google_form_watch(
                 google_creds=google_forms_creds,
                 form_id=google_form['formId'],

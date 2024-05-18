@@ -69,7 +69,8 @@ def test_create_google_form_for_transaction_categorization():
         transaction_type='credit',
         transaction_date='April 1st, 2024',
         description='Rent',
-        amount=1000.0
+        amount=1000.0,
+        category_ml='Living Expenses'
     )
 
     # Create credentials
@@ -98,7 +99,7 @@ def test_create_google_form_for_transaction_categorization():
 
     form_questions = form_result['items']
     assert len(form_questions) == 1
-    assert form_questions[0]['title'] == 'A transaction was recorded with the following details. Please assign an appropriate category.\tRecord ID: "record-1"; Message ID: "message-1"; Transaction Type: "credit"; Transaction Date: "April 1st, 2024"; Description: "Rent"; Amount: "1000.0"'
+    assert form_questions[0]['title'] == 'A transaction was recorded with the following details. It was automatically assigned to the following category: "Living Expenses". If this is inaccurate, please assign an appropriate category.\tRecord ID: "record-1"; Message ID: "message-1"; Transaction Type: "credit"; Transaction Date: "April 1st, 2024"; Description: "Rent"; Amount: "1000.0"'
 
 
 def test_create_google_form_watch():
@@ -108,7 +109,8 @@ def test_create_google_form_watch():
         transaction_type='credit',
         transaction_date='April 1st, 2024',
         description='Rent',
-        amount=1000.0
+        amount=1000.0,
+        category_ml='Living Expenses'
     )
 
     # Create credentials

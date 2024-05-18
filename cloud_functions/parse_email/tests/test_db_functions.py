@@ -31,12 +31,13 @@ def db_setup():
                 amount FLOAT,
                 transaction_date TIMESTAMPTZ,
                 description VARCHAR,
+                category_ml VARCHAR,
                 category VARCHAR,
                 updated_at TIMESTAMPTZ
         );
 
         INSERT INTO financial_transactions_test VALUES
-        (1, 'message_id_1', 'debit', 100.0, '2024-01-01 00:00:05-08', 'Sample Description', 'Sample Category', '2024-01-02 00:00:12-08');
+        (1, 'message_id_1', 'debit', 100.0, '2024-01-01 00:00:05-08', 'Sample Description', 'Sample Category ML', 'Sample Category', '2024-01-02 00:00:12-08');
     """)
 
     # Execute the query and fetch all results
@@ -68,10 +69,11 @@ def test_query(db_setup):
         sql = "SELECT * FROM financial_transactions_test WHERE id = '1'",
         db_creds = db_creds,
     )
-
+    
     assert res == [('1', 'message_id_1', 'debit', 100.0, 
                     datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
                     'Sample Description', 
+                    'Sample Category ML',
                     'Sample Category',
                     datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc))]
 
@@ -113,12 +115,14 @@ def test_save_to_db(db_setup):
         ('1', 'message_id_1', 'debit', 100.0, 
         datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
         'Sample Description', 
+        'Sample Category ML',
         'Sample Category',
         datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
 
         ('2', 'message_id_2', 'credit', 200.0, 
         datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc), 
         'Groceries', 
+        None, # cateogry_ml wasn't provided
         'Food',
         datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc)),
         
@@ -142,6 +146,7 @@ def test_save_to_db_when_id_already_exists(db_setup):
         'amount': 200.0,
         'transaction_date': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc),
         'description': 'Groceries',
+        'category_ml': 'Food',
         'category': 'Food',
         'updated_at': datetime.datetime(2024, 2, 1, 0, 0, tzinfo=datetime.timezone.utc)
     }
@@ -158,6 +163,7 @@ def test_save_to_db_when_id_already_exists(db_setup):
         ('1', 'message_id_1', 'debit', 100.0, 
         datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
         'Sample Description', 
+        'Sample Category ML',
         'Sample Category',
         datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
         
@@ -184,6 +190,7 @@ def test_find_record(db_setup):
     assert record.amount == 100.0
     assert record.transaction_date == datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc)
     assert record.description == 'Sample Description'
+    assert record.category_ml == 'Sample Category ML'
     assert record.category == 'Sample Category'
     assert record.updated_at == datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)
 
@@ -215,6 +222,7 @@ def test_update_record(db_setup):
         ('1', 'message_id_1', 'debit', 100.0, 
         datetime.datetime(2024, 1, 1, 8, 0, 5, tzinfo=datetime.timezone.utc), 
         'Sample Description', 
+        'Sample Category ML',
         'Updated Category',
         datetime.datetime(2024, 1, 2, 8, 0, 12, tzinfo=datetime.timezone.utc)),
         

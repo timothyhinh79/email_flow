@@ -28,7 +28,8 @@ def test_delete_file():
         transaction_type='credit',
         transaction_date='April 1st, 2024',
         description='Rent',
-        amount=1000.0
+        amount=1000.0,
+        category_ml='Living Expenses'
     )
 
     # Create credentials

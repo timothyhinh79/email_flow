@@ -13,6 +13,7 @@ class FinancialTransaction(Base):
     amount = Column(Float)
     transaction_date = Column(DateTime)
     description = Column(String)
+    category_ml = Column(String)
     category = Column(String)
     updated_at = Column(DateTime)
 
@@ -26,5 +27,6 @@ class FinancialTransactionTest(Base):
     amount = Column(Float)
     transaction_date = Column(DateTime)
     description = Column(String)
+    category_ml = Column(String)
     category = Column(String)
     updated_at = Column(DateTime)

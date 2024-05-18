@@ -6,7 +6,8 @@ def generate_transaction_categorization_question(
     transaction_type,
     transaction_date,
     description,
-    amount
+    amount,
+    category_ml
 ):
 
     CATEGORIZE_TRANSACTION_QUESTION = {
@@ -15,7 +16,9 @@ def generate_transaction_categorization_question(
                 "createItem": {
                     "item": {
                         "title": (
-                            "A transaction was recorded with the following details. Please assign an appropriate category.\t"
+                            f"A transaction was recorded with the following details. "
+                            f"It was automatically assigned to the following category: \"{category_ml}\". "
+                            f"If this is inaccurate, please assign an appropriate category.\t"
                             f"Record ID: \"{record_id}\"; "
                             f"Message ID: \"{message_id}\"; "
                             f"Transaction Type: \"{transaction_type}\"; "
