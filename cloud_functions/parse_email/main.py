@@ -144,7 +144,9 @@ def parse_data_and_save_to_db(cloud_event):
             )
 
             # Compose email with link to google form, and send to main email account
-            body = f"Please visit the following link: \nhttps://docs.google.com/forms/d/{google_form['formId']}/viewform?edit_requested=true"
+            body = f"The transaction \"{data_json['description']}\" was automically categorized as \"{predicted_category}\".\n\n"
+            body += f"If this is inaccurate, please visit the following link to reassign the appropriate category: \n"
+            body += f"https://docs.google.com/forms/d/{google_form['formId']}/viewform?edit_requested=true"
             compose_and_send_email(
                 google_creds=dummy_gmail_creds,
                 sender='tim098292@gmail.com', # dummy account
