@@ -102,13 +102,15 @@ def parse_data_and_save_to_db(cloud_event):
             # Process each transaction email and save relevant data to DB
             data_json = process_financial_transaction_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
 
-            # Predict category based on description
-            predicted_category = categories_text[model.predict([data_json['description']])[0].argmax(axis=-1)]
-            data_json['category_ml'] = predicted_category
-            data_json['category'] = predicted_category
-
             save_to_db_result = False
             if data_json:
+                
+                # Predict category based on description
+                predicted_category = categories_text[model.predict([data_json['description']])[0].argmax(axis=-1)]
+                data_json['category_ml'] = predicted_category
+                data_json['category'] = predicted_category
+
+                # Save data to DB
                 save_to_db_result = save_to_db(FinancialTransaction, data_json, db_creds)
 
             # if record was not saved to database (because the record already existed or 
@@ -144,7 +146,7 @@ def parse_data_and_save_to_db(cloud_event):
             )
 
             # Compose email with link to google form, and send to main email account
-            body = f"The transaction \"{data_json['description']}\" was automically categorized as \"{predicted_category}\".\n\n"
+            body = f"The transaction \"{data_json['description']}\" was automatically categorized as \"{predicted_category}\".\n\n"
             body += f"If this is inaccurate, please visit the following link to reassign the appropriate category: \n"
             body += f"https://docs.google.com/forms/d/{google_form['formId']}/viewform?edit_requested=true"
             compose_and_send_email(
