@@ -18,3 +18,14 @@ def delete_file(google_creds, file_id):
             print(f'File with id {file_id} was not found. Skipping deletion...')
         else:
             raise
+
+def query_files(google_creds, query):
+
+    # Build the service
+    drive_service = build('drive', 'v3', credentials=google_creds)
+
+    # Query the files
+    results = drive_service.files().list(q=query, fields="nextPageToken, files(id, name, mimeType, createdTime)").execute()
+    files = results.get('files', [])
+
+    return files

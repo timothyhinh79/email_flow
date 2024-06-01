@@ -2,7 +2,10 @@ from lib.google_forms.google_forms import (
     create_google_form,
 )
 from lib.google_forms.questions.categorize_transaction_question import generate_transaction_categorization_question
-from lib.google_drive.google_drive import delete_file
+from lib.google_drive.google_drive import (
+    delete_file,
+    query_files,
+)
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -61,3 +64,19 @@ def test_delete_file():
         assert False, f"File with id {form_result['formId']} was not deleted."
     except:
         assert True
+
+def test_query_files():
+    drive_creds = Credentials.from_authorized_user_info({
+        'client_id': GOOGLE_DRIVE_CLIENT_ID, 
+        'client_secret': GOOGLE_DRIVE_CLIENT_SECRET,
+        'refresh_token': GOOGLE_DRIVE_REFRESH_TOKEN
+    })
+
+    # there should only be one Google Form that meets the following query criteria
+    # query = "name='[FOR PYTEST] Categorize Financial Transaction' and createdTime < '2024-04-22T00:00:00'"
+    query = f"mimeType = 'application/vnd.google-apps.form' and createdTime < '2024-05-14T00:00:00'"
+    query += f" and name = '[FOR PYTEST] Categorize Financial Transaction'"
+    files = query_files(google_creds=drive_creds, query=query)
+    
+    assert len(files) == 1
+    assert files[0]['name'] == '[FOR PYTEST] Categorize Financial Transaction'
