@@ -3,6 +3,7 @@ from googleapiclient.discovery import build
 from google.cloud import storage
 import tensorflow as tf
 import base64
+import os
 import functions_framework
 
 from models.message_id import MessageIDs
@@ -31,6 +32,23 @@ categories_text = [
     'Entertainment', 'Education', 'Living Expenses'
 ]
 
+# Loading environment variables
+main_gmail_api_creds_secret = os.getenv('MAIN_GMAIL_API_CREDS_SECRET')
+main_gmail_api_creds_secret_ver = os.getenv('MAIN_GMAIL_API_CREDS_SECRET_VER')
+dummy_gmail_api_creds_secret = os.getenv('DUMMY_GMAIL_API_CREDS_SECRET')
+dummy_gmail_api_creds_secret_ver = os.getenv('DUMMY_GMAIL_API_CREDS_SECRET_VER')
+google_forms_api_creds_secret = os.getenv('GOOGLE_FORMS_API_CREDS_SECRET')
+google_forms_api_creds_secret_ver = os.getenv('GOOGLE_FORMS_API_CREDS_SECRET_VER')
+db_creds_secret = os.getenv('DB_CREDS_SECRET')
+db_creds_secret_ver = os.getenv('DB_CREDS_SECRET_VER')
+gmail_labels = os.getenv('GMAIL_LABELS')
+classification_model_bucket = os.getenv('CLASSIFICATION_MODEL_BUCKET')
+model_file = os.getenv('MODEL_FILE')
+categorization_submission_topic = os.getenv('CATEGORIZATION_SUBMISSION_TOPIC')
+dummy_gmail = os.getenv('DUMMY_GMAIL')
+main_gmail = os.getenv('MAIN_GMAIL')
+categorization_google_form_title = os.getenv('CATEGORIZATION_GOOGLE_FORM_TITLE')
+
 @functions_framework.cloud_event
 def parse_data_and_save_to_db(cloud_event):
 
@@ -41,14 +59,14 @@ def parse_data_and_save_to_db(cloud_event):
     ##### Load all necessary credentials
 
     # Setting up Gmail API credentials for both the main and dummy gmail accounts
-    main_gmail_api_secrets = access_secret_version('email-parser-414818', 'gmail_api_credentials', '7')
+    main_gmail_api_secrets = access_secret_version('email-parser-414818', main_gmail_api_creds_secret, main_gmail_api_creds_secret_ver)
     main_gmail_creds = Credentials.from_authorized_user_info({
         'client_id': main_gmail_api_secrets['client_id'], 
         'client_secret': main_gmail_api_secrets['client_secret'],
         'refresh_token': main_gmail_api_secrets['refresh_token']
     })
 
-    dummy_gmail_api_secrets = access_secret_version('email-parser-414818', 'dummy_gmail_api_credentials', '1')
+    dummy_gmail_api_secrets = access_secret_version('email-parser-414818', dummy_gmail_api_creds_secret, dummy_gmail_api_creds_secret_ver)
     dummy_gmail_creds = Credentials.from_authorized_user_info({
         'client_id': dummy_gmail_api_secrets['client_id'], 
         'client_secret': dummy_gmail_api_secrets['client_secret'],
@@ -56,7 +74,7 @@ def parse_data_and_save_to_db(cloud_event):
     })
 
     # Setting up credentials for Google Forms API
-    google_forms_api_secrets = access_secret_version('email-parser-414818', 'google_forms_api_credentials', '1')
+    google_forms_api_secrets = access_secret_version('email-parser-414818', google_forms_api_creds_secret, google_forms_api_creds_secret_ver)
     google_forms_creds = Credentials.from_authorized_user_info({
         'client_id': google_forms_api_secrets['client_id'], 
         'client_secret': google_forms_api_secrets['client_secret'],
@@ -64,7 +82,7 @@ def parse_data_and_save_to_db(cloud_event):
     })
 
     # Set up DB credentials
-    db_creds_json = access_secret_version('email-parser-414818', 'gmail_logger_postgres_credentials', '1')
+    db_creds_json = access_secret_version('email-parser-414818', db_creds_secret, db_creds_secret_ver)
     db_creds = DBCredentials(
         host = db_creds_json['DB_HOST'],
         port = db_creds_json['DB_PORT'],
@@ -85,14 +103,15 @@ def parse_data_and_save_to_db(cloud_event):
 
     print(f'Previous message ID: {start_message_id}')
 
-    messages = get_messages_after_specific_message(gmail, start_message_id, label_ids=['Label_3935809748622434433'])
+    # Convert string of labels to list
+    label_ids = gmail_labels.split(',')
+    messages = get_messages_after_specific_message(gmail, start_message_id, label_ids=label_ids)
 
     if messages:
 
         # Load classification model
         gcs = storage.Client()
-        bucket = gcs.get_bucket('email-parser-ml-models')
-        model_file = 'financial_transactions_categorization_rnn_model.keras'
+        bucket = gcs.get_bucket(classification_model_bucket)
         blob = bucket.blob(model_file)
         blob.download_to_filename(model_file) 
         model = tf.keras.models.load_model(model_file)
@@ -132,7 +151,7 @@ def parse_data_and_save_to_db(cloud_event):
 
             google_form = create_google_form(
                 google_creds=google_forms_creds, 
-                google_form_title='Categorize Financial Transaction',
+                google_form_title=categorization_google_form_title,
                 google_form_document_title=subject,
                 google_form_questions=question
             )
@@ -142,7 +161,7 @@ def parse_data_and_save_to_db(cloud_event):
                 google_creds=google_forms_creds,
                 form_id=google_form['formId'],
                 event_type='RESPONSES',
-                topic_name='projects/email-parser-414818/topics/categorize-transactions-form-submissions'
+                topic_name=categorization_submission_topic
             )
 
             # Compose email with link to google form, and send to main email account
@@ -151,8 +170,8 @@ def parse_data_and_save_to_db(cloud_event):
             body += f"https://docs.google.com/forms/d/{google_form['formId']}/viewform?edit_requested=true"
             compose_and_send_email(
                 google_creds=dummy_gmail_creds,
-                sender='tim098292@gmail.com', # dummy account
-                to='timothyhinh79@gmail.com',
+                sender=dummy_gmail, # dummy account
+                to=main_gmail,
                 subject=subject,
                 body=body
             )
