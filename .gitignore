@@ -4,3 +4,5 @@ sample_data/
 credentials/
 __pycache__/
 scratch/
+classification_model/data/
+classification_model/models/
