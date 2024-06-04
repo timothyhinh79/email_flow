@@ -63,7 +63,7 @@ def test_parse_credit_card_transaction():
         © 2024 Bank of America Corporation
     """
 
-    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = parse_credit_card_transaction(example_bofa_email)
 
     data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
@@ -85,7 +85,7 @@ def test_parse_credit_card_transaction_on_unforwarded_email_with_html():
     with open('./tests/data/sample_html_payload.txt', 'r') as f:
         html_payload = f.read()
 
-    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = parse_credit_card_transaction(html_payload)
 
     data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
@@ -106,7 +106,7 @@ def test_parse_zelle_transfer():
     with open('./tests/data/sample_zelle_transfer_email_body.txt', 'r') as f:
         zelle_email_payload = f.read()
 
-    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = parse_zelle_transfer(zelle_email_payload)
 
     data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
@@ -125,7 +125,7 @@ def test_parse_direct_deposit():
     with open('./tests/data/sample_direct_dep_email_body.txt', 'r') as f:
         direct_deposit_email_payload = f.read()
 
-    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc)
+    timestamp_before_parsing = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = parse_direct_deposit(direct_deposit_email_payload)
 
     data_json_wo_time = {k:v for k,v in data_json.items() if k != 'updated_at'}
@@ -153,12 +153,12 @@ def test_process_message_with_credit_card_transaction():
 
     gmail = build('gmail', 'v1', credentials=creds)
 
-    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = process_financial_transaction_message(gmail, message_id = '18e362f2ae442dc7', save_to_db_ = False)
     updated_at_timestamp = data_json.pop('updated_at')
     
     assert data_json == {
-        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e362f2ae442dc7'),
+        'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, '18e362f2ae442dc7')),
         'message_id': '18e362f2ae442dc7',
         'transaction_type': 'credit', 
         'amount': 4.99, 
@@ -181,12 +181,12 @@ def test_process_message_with_zelle_transfer():
 
     gmail = build('gmail', 'v1', credentials=creds)
 
-    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = process_financial_transaction_message(gmail, message_id = '18e82be57a7be56e', save_to_db_ = False)
     updated_at_timestamp = data_json.pop('updated_at')
     
     assert data_json == {
-        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e82be57a7be56e'),
+        'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, '18e82be57a7be56e')),
         'message_id': '18e82be57a7be56e',
         'transaction_type': 'credit', 
         'amount': 1.00, 
@@ -209,12 +209,12 @@ def test_process_message_with_direct_deposit():
 
     gmail = build('gmail', 'v1', credentials=creds)
 
-    start_timestamp = datetime.datetime.now(datetime.timezone.utc)
+    start_timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     data_json = process_financial_transaction_message(gmail, message_id = '18e55a5b8ebf4038', save_to_db_ = False)
     updated_at_timestamp = data_json.pop('updated_at')
     
     assert data_json == {
-        'id': uuid.uuid5(uuid.NAMESPACE_DNS, '18e55a5b8ebf4038'),
+        'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, '18e55a5b8ebf4038')),
         'message_id': '18e55a5b8ebf4038',
         'transaction_type': 'debit', 
         'amount': 473.00, 

@@ -1,6 +1,3 @@
-from google.cloud import secretmanager
-from google.oauth2 import service_account
-import json
 import re
 import uuid
 import datetime
@@ -48,7 +45,7 @@ def parse_credit_card_transaction(email_body):
         'transaction_date': date,
         'description': where,
         'category': None,
-        'updated_at': datetime.datetime.now(datetime.timezone.utc)
+        'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     }
     
     return data_json
@@ -74,7 +71,7 @@ def parse_zelle_transfer(email_body):
         'amount': float(amount.replace(',','')),
         'description': message,
         'category': None,
-        'updated_at': datetime.datetime.now(datetime.timezone.utc)
+        'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     }
     
     return data_json
@@ -103,7 +100,7 @@ def parse_direct_deposit(email_body):
         'transaction_date': transaction_date,
         'description': f'Sender: {sender}',
         'category': None,
-        'updated_at': datetime.datetime.now(datetime.timezone.utc)
+        'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     }
     
     return data_json
@@ -157,7 +154,7 @@ def process_financial_transaction_message(gmail_client, message_id, save_to_db_ 
 
         # add message ID and UUID
         data_json['message_id'] = message_id
-        data_json['id'] = uuid.uuid5(uuid.NAMESPACE_DNS, message_id) 
+        data_json['id'] = str(uuid.uuid5(uuid.NAMESPACE_DNS, message_id) )
 
         if save_to_db_:
 
