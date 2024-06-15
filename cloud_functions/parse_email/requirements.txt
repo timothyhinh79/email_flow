@@ -7,6 +7,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 cloudevents==1.10.1
 colorama==0.4.6
+confluent-kafka==2.4.0
 deprecation==2.1.0
 exceptiongroup==1.2.0
 Flask==3.0.2
