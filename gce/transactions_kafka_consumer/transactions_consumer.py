@@ -1,7 +1,11 @@
 import os
 import json
 import logging
+
 from confluent_kafka import Consumer, KafkaException
+from google.cloud import storage
+import tensorflow as tf
+
 from lib.gcp.gcp import access_secret_version
 from db_utils.db_functions import save_to_db
 from classes.db_credentials import DBCredentials
@@ -21,7 +25,10 @@ TOPIC_SECURITY_PROTOCOL = os.getenv('TOPIC_SECURITY_PROTOCOL')
 TOPIC_SASL_MECHANISMS = os.getenv('TOPIC_SASL_MECHANISMS')
 DB_CREDS_SECRET = os.getenv('DB_CREDS_SECRET')
 DB_CREDS_SECRET_VER = os.getenv('DB_CREDS_SECRET_VER')
-SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
+SECRETS_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('SECRETS_ACCESS_SERVICE_ACCOUNT_FILE')
+GCS_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('GCS_ACCESS_SERVICE_ACCOUNT_FILE')
+CLASSIFICATION_MODEL_BUCKET = os.getenv('CLASSIFICATION_MODEL_BUCKET')
+MODEL_FILE = os.getenv('MODEL_FILE')
 
 logger.info("Environment variables loaded")
 
@@ -30,7 +37,7 @@ kafka_credentials = access_secret_version(
     'email-parser-414818', 
     TRANSACTIONS_TOPIC_CREDS_SECRET, 
     TRANSACTIONS_TOPIC_CREDS_SECRET_VER,
-    SERVICE_ACCOUNT_FILE
+    SECRETS_ACCESS_SERVICE_ACCOUNT_FILE
 )
 
 # Access the DB credentials from Secret Manager
@@ -38,7 +45,7 @@ db_creds_json = access_secret_version(
     'email-parser-414818', 
     DB_CREDS_SECRET, 
     DB_CREDS_SECRET_VER,
-    SERVICE_ACCOUNT_FILE
+    SECRETS_ACCESS_SERVICE_ACCOUNT_FILE
 )
 
 logger.info("Credentials loaded")
@@ -81,10 +88,35 @@ def consume_messages(consumer, topic):
             if msg.error():
                 raise KafkaException(msg.error())
             else:
-                # Save message to DB
+                # Load the JSON message from topic
                 data_json = json.loads(msg.value().decode('utf-8'))
-                save_to_db(FinancialTransaction, data_json, db_creds)
-                logger.info(f"Saved message to DB: {msg.value().decode('utf-8')}")
+                logger.info(f"Received message from topic: {msg.value().decode('utf-8')}")
+
+                categories_text = [
+                    'Food', 'Personal & Miscellaneous', 'Savings & Investments',
+                    'Entertainment', 'Education', 'Living Expenses'
+                ]
+
+                # Load classification model
+                gcs = storage.Client.from_service_account_json(GCS_ACCESS_SERVICE_ACCOUNT_FILE)
+                bucket = gcs.get_bucket(CLASSIFICATION_MODEL_BUCKET)
+                blob = bucket.blob(MODEL_FILE)
+                blob.download_to_filename(MODEL_FILE) 
+                model = tf.keras.models.load_model(MODEL_FILE)
+                logger.info("Loaded classification model")
+
+                # Predict category based on description
+                predicted_category = categories_text[model.predict([data_json['description']])[0].argmax(axis=-1)]
+                data_json['category_ml'] = predicted_category
+                data_json['category'] = predicted_category
+                logger.info(f"Classified transaction ID '{data_json['id']}' as '{predicted_category}'")
+
+                # Save classifed transaction to DB
+                res = save_to_db(FinancialTransaction, data_json, db_creds)
+                if res:
+                    logger.info(f"Saved message to DB: {msg.value().decode('utf-8')}")
+                else:
+                    logger.error(f"Following message already exists in DB: {msg.value().decode('utf-8')}")
 
     except KeyboardInterrupt:
         pass
