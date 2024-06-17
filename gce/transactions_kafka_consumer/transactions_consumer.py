@@ -2,7 +2,7 @@ import os
 import json
 import logging
 
-from confluent_kafka import Consumer, KafkaException
+from confluent_kafka import Consumer, Producer, KafkaException
 from google.cloud import storage
 import tensorflow as tf
 
@@ -19,6 +19,9 @@ logger.info("Starting transactions_consumer.py")
 TRANSACTIONS_TOPIC_CREDS_SECRET = os.getenv('TRANSACTIONS_TOPIC_CREDS_SECRET')
 TRANSACTIONS_TOPIC_CREDS_SECRET_VER = os.getenv('TRANSACTIONS_TOPIC_CREDS_SECRET_VER')
 TRANSACTIONS_TOPIC = os.getenv('TRANSACTIONS_TOPIC')
+CLASSIFIED_TRANSACTIONS_TOPIC_CREDS_SECRET = os.getenv('CLASSIFIED_TRANSACTIONS_TOPIC_CREDS_SECRET')
+CLASSIFIED_TRANSACTIONS_TOPIC_CREDS_SECRET_VER = os.getenv('CLASSIFIED_TRANSACTIONS_TOPIC_CREDS_SECRET_VER')
+CLASSIFIED_TRANSACTIONS_TOPIC = os.getenv('CLASSIFIED_TRANSACTIONS_TOPIC')
 TRANSACTIONS_TOPIC_CONSUMER_GROUP_ID = os.getenv('TRANSACTIONS_TOPIC_CONSUMER_GROUP_ID')
 TOPIC_AUTO_OFFSET_RESET = os.getenv('TOPIC_AUTO_OFFSET_RESET')
 TOPIC_SECURITY_PROTOCOL = os.getenv('TOPIC_SECURITY_PROTOCOL')
@@ -32,11 +35,19 @@ MODEL_FILE = os.getenv('MODEL_FILE')
 
 logger.info("Environment variables loaded")
 
-# Access the Kafka credentials from Secret Manager
-kafka_credentials = access_secret_version(
+# Get credentials to read from transactions topic from Secret Manager
+transactions_topic_read_creds = access_secret_version(
     'email-parser-414818', 
     TRANSACTIONS_TOPIC_CREDS_SECRET, 
     TRANSACTIONS_TOPIC_CREDS_SECRET_VER,
+    SECRETS_ACCESS_SERVICE_ACCOUNT_FILE
+)
+
+# Get credentials to write to classified-transactions topic from Secret Manager
+classified_transactions_topic_write_creds = access_secret_version(
+    'email-parser-414818', 
+    CLASSIFIED_TRANSACTIONS_TOPIC_CREDS_SECRET, 
+    CLASSIFIED_TRANSACTIONS_TOPIC_CREDS_SECRET_VER,
     SECRETS_ACCESS_SERVICE_ACCOUNT_FILE
 )
 
@@ -61,25 +72,34 @@ db_creds = DBCredentials(
 
 # Define the Kafka Consumer configuration
 kafka_consumer_config = {
-    'bootstrap.servers': kafka_credentials['bootstrap.servers'],
+    'bootstrap.servers': transactions_topic_read_creds['bootstrap.servers'],
     'group.id': TRANSACTIONS_TOPIC_CONSUMER_GROUP_ID,
     'auto.offset.reset': TOPIC_AUTO_OFFSET_RESET,
     'security.protocol': TOPIC_SECURITY_PROTOCOL,
     'sasl.mechanisms': TOPIC_SASL_MECHANISMS,
-    'sasl.username': kafka_credentials['sasl.username'],
-    'sasl.password': kafka_credentials['sasl.password']
+    'sasl.username': transactions_topic_read_creds['sasl.username'],
+    'sasl.password': transactions_topic_read_creds['sasl.password']
 }
 
-def create_consumer(config = None):
-    consumer = Consumer(config)
-    return consumer
+# Define the Kafka Producer configuration
+kafka_producer_config = {
+    'bootstrap.servers': classified_transactions_topic_write_creds['bootstrap.servers'],
+    'security.protocol': TOPIC_SECURITY_PROTOCOL,
+    'sasl.mechanisms': TOPIC_SASL_MECHANISMS,
+    'sasl.username': classified_transactions_topic_write_creds['sasl.username'],
+    'sasl.password': classified_transactions_topic_write_creds['sasl.password']
+}
+    
 
-def consume_messages(consumer, topic):
+if __name__ == "__main__":
+
     # Subscribe to the Kafka topic
-    consumer.subscribe([topic])
+    consumer = Consumer(kafka_consumer_config)
+    consumer.subscribe([TRANSACTIONS_TOPIC])
 
     try:
         while True:
+            
             # Poll for messages
             msg = consumer.poll(1.0)
 
@@ -88,6 +108,7 @@ def consume_messages(consumer, topic):
             if msg.error():
                 raise KafkaException(msg.error())
             else:
+
                 # Load the JSON message from topic
                 data_json = json.loads(msg.value().decode('utf-8'))
                 logger.info(f"Received message from topic: {msg.value().decode('utf-8')}")
@@ -115,15 +136,18 @@ def consume_messages(consumer, topic):
                 res = save_to_db(FinancialTransaction, data_json, db_creds)
                 if res:
                     logger.info(f"Saved message to DB: {msg.value().decode('utf-8')}")
+
+                    # Produce the classified transaction to the classified-transactions topic
+                    producer = Producer(kafka_producer_config)
+                    producer.produce(CLASSIFIED_TRANSACTIONS_TOPIC, json.dumps(data_json))
+                    producer.flush()
+                    logger.info(f"Produced message to topic '{CLASSIFIED_TRANSACTIONS_TOPIC}': {json.dumps(data_json)}")
+
                 else:
-                    logger.error(f"Following message already exists in DB: {msg.value().decode('utf-8')}")
+                    logger.info(f"Following message already exists in DB: {msg.value().decode('utf-8')}")
 
     except KeyboardInterrupt:
         pass
     finally:
         # Close down consumer to commit final offsets.
         consumer.close()
-
-if __name__ == "__main__":
-    consumer = create_consumer(kafka_consumer_config)
-    consume_messages(consumer, TRANSACTIONS_TOPIC)
