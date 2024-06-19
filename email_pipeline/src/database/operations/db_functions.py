@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeMeta
 
 from typing import Type
 
-from entities.db_credentials import DBCredentials
+from src.entities.db_credentials import DBCredentials
 
 def query(sql: str, db_creds: DBCredentials):
     engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')

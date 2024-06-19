@@ -6,7 +6,7 @@ import os
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 
-from email_processing.parsers import (
+from src.email_processing.parsers import (
     parse_credit_card_transaction,
     process_financial_transaction_message,
     parse_zelle_transfer,

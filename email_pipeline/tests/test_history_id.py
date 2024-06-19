@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine, text
 
-from database.models.history_id import HistoryIDsTest
-from database.operations.db_functions import query, save_to_db
-from entities.db_credentials import DBCredentials
+from src.database.models.history_id import HistoryIDsTest
+from src.database.operations.db_functions import query, save_to_db
+from src.entities.db_credentials import DBCredentials
 
 load_dotenv()
 

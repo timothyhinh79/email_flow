@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from database.operations.db_functions import query, save_to_db
+from src.database.operations.db_functions import query, save_to_db
 import uuid
 import datetime
 

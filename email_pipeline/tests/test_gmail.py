@@ -2,7 +2,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 import base64
 import email
-from services.gmail.gmail import (
+from src.services.gmail.gmail import (
     compose_and_send_email, 
     get_date_received, 
     get_latest_message_id, 

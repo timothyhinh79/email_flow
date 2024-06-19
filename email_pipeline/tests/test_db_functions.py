@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine, text
 
-from database.models.financial_transaction import FinancialTransactionTest
-from database.operations.db_functions import query, save_to_db, get_pk_field, update_record, find_record
-from entities.db_credentials import DBCredentials
+from src.database.models.financial_transaction import FinancialTransactionTest
+from src.database.operations.db_functions import query, save_to_db, get_pk_field, update_record, find_record
+from src.entities.db_credentials import DBCredentials
 
 load_dotenv()
 

@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine, text
 
-from database.models.message_id import MessageIDsTest
-from entities.db_credentials import DBCredentials
+from src.database.models.message_id import MessageIDsTest
+from src.entities.db_credentials import DBCredentials
 
 load_dotenv()
 

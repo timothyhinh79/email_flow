@@ -4,9 +4,9 @@ import datetime
 import base64
 import email
 
-from database.models.financial_transaction import FinancialTransaction
-from database.operations.db_functions import save_to_db
-from services.gmail.gmail import get_date_received
+from src.database.models.financial_transaction import FinancialTransaction
+from src.database.operations.db_functions import save_to_db
+from src.services.gmail.gmail import get_date_received
 
 def parse_credit_card_transaction(email_body):
 
