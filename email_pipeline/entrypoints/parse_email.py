@@ -6,13 +6,13 @@ import functions_framework
 from confluent_kafka import Producer
 import json
 
-from database.models.message_id import MessageIDs
-from entities.db_credentials import DBCredentials
-from email_processing.parsers import (
+from src.database.models.message_id import MessageIDs
+from src.entities.db_credentials import DBCredentials
+from src.email_processing.parsers import (
     process_financial_transaction_message,
 )
-from services.gcp.gcp import access_secret_version
-from services.gmail.gmail import (
+from src.services.gcp.gcp import access_secret_version
+from src.services.gmail.gmail import (
     get_messages_after_specific_message,
     get_latest_message_id,
 )
