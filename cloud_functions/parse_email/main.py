@@ -5,8 +5,6 @@ import tensorflow as tf
 import base64
 import os
 import functions_framework
-from confluent_kafka import Producer
-import json
 
 from models.message_id import MessageIDs
 from models.financial_transaction import FinancialTransaction
@@ -50,8 +48,6 @@ categorization_submission_topic = os.getenv('CATEGORIZATION_SUBMISSION_TOPIC')
 dummy_gmail = os.getenv('DUMMY_GMAIL')
 main_gmail = os.getenv('MAIN_GMAIL')
 categorization_google_form_title = os.getenv('CATEGORIZATION_GOOGLE_FORM_TITLE')
-transactions_topic_creds_secret = os.getenv('TRANSACTIONS_TOPIC_CREDS_SECRET')
-transactions_topic_creds_secret_ver = os.getenv('TRANSACTIONS_TOPIC_CREDS_SECRET_VER')
 
 @functions_framework.cloud_event
 def parse_data_and_save_to_db(cloud_event):
@@ -140,21 +136,6 @@ def parse_data_and_save_to_db(cloud_event):
             #   because the message was not meant to be parsed), do not create google form
             if not save_to_db_result:
                 continue
-
-            # Grab transactions Kafka topic credentials
-            producer_config = access_secret_version('email-parser-414818', transactions_topic_creds_secret, transactions_topic_creds_secret_ver)
-
-            # Create a Kafka producer
-            producer = Producer(producer_config)
-
-            # Define the topic
-            topic = 'transactions'
-
-            # Produce the message to the Kafka topic
-            producer.produce(topic, value=json.dumps(data_json))
-
-            # Wait for all messages to be sent
-            producer.flush()
 
             # Create google form for categorizing the transaction
             subject = f"Categorize \"{data_json['description']}\" Transaction"
