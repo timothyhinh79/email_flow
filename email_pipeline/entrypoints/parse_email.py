@@ -1,10 +1,13 @@
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
+
 import base64
 import os
-import functions_framework
-from confluent_kafka import Producer
 import json
+import logging
+from flask import Flask, request
+
+from confluent_kafka import Producer
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 from src.database.models.message_id import MessageIDs
 from src.entities.db_credentials import DBCredentials
@@ -17,6 +20,10 @@ from src.services.gmail.gmail import (
     get_latest_message_id,
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("Starting index.py")
+
 # Loading environment variables
 MAIN_GMAIL_API_CREDS_SECRET = os.getenv('MAIN_GMAIL_API_CREDS_SECRET')
 MAIN_GMAIL_API_CREDS_SECRET_VER = os.getenv('MAIN_GMAIL_API_CREDS_SECRET_VER')
@@ -27,15 +34,32 @@ TRANSACTIONS_TOPIC_CREDS_SECRET = os.getenv('TRANSACTIONS_TOPIC_CREDS_SECRET')
 TRANSACTIONS_TOPIC_CREDS_SECRET_VER = os.getenv('TRANSACTIONS_TOPIC_CREDS_SECRET_VER')
 TRANSACTIONS_TOPIC = os.getenv('TRANSACTIONS_TOPIC')
 
-@functions_framework.cloud_event
-def parse_data_and_save_to_db(cloud_event):
+logger.info("Environment variables loaded")
 
-    pubsub_msg = base64.b64decode(cloud_event.data["message"]["data"])
+app = Flask(__name__)
+
+@app.route('/', methods=['POST'])
+def index():
+
+    ##### Parse the Pub/Sub message
+    envelope = request.get_json()
+    if not envelope:
+        msg = "no Pub/Sub message received"
+        logger.error(f"error: {msg}")
+        return f"Bad Request: {msg}", 400
+
+    if not isinstance(envelope, dict) or "message" not in envelope:
+        msg = "invalid Pub/Sub message format"
+        logger.error(f"error: {msg}")
+        return f"Bad Request: {msg}", 400
+
+    pubsub_message = envelope["message"]
+
+    pubsub_message_data = base64.b64decode(pubsub_message["data"])
     print("Pubsub Message")
-    print(pubsub_msg)
+    print(pubsub_message_data)
 
     ##### Load all necessary credentials
-
     # Setting up Gmail API credentials for both the main and dummy gmail accounts
     main_gmail_api_secrets = access_secret_version('email-parser-414818', MAIN_GMAIL_API_CREDS_SECRET, MAIN_GMAIL_API_CREDS_SECRET_VER)
     main_gmail_creds = Credentials.from_authorized_user_info({
@@ -57,8 +81,8 @@ def parse_data_and_save_to_db(cloud_event):
     # Grab transactions Kafka topic credentials
     producer_config = access_secret_version('email-parser-414818', TRANSACTIONS_TOPIC_CREDS_SECRET, TRANSACTIONS_TOPIC_CREDS_SECRET_VER)
 
-    ##### Identify the latest transaction emails since the previous run
 
+    ##### Identify the latest transaction emails since the previous run
     gmail = build('gmail', 'v1', credentials=main_gmail_creds)
 
     # Specify the start messageId
@@ -67,14 +91,14 @@ def parse_data_and_save_to_db(cloud_event):
     if not start_message_id:
         start_message_id = None
 
-    print(f'Previous message ID: {start_message_id}')
+    logger.info(f'Fetching messages after the following message ID: {start_message_id}')
 
     # Convert string of labels to list
     label_ids = GMAIL_LABELS.split(',')
     messages = get_messages_after_specific_message(gmail, start_message_id, label_ids=label_ids)
 
-    ##### Process each transaction email and push relevant data to Kafka topic
 
+    ##### Process each transaction email and push relevant data to Kafka topic
     if messages:
 
         for message in messages:
@@ -87,8 +111,12 @@ def parse_data_and_save_to_db(cloud_event):
             producer.produce(TRANSACTIONS_TOPIC, value=json.dumps(data_json))
             producer.flush()
 
+            logger.info(f'Transaction email processed successfully for message ID: {message["id"]}')
+
         # Save the id of the latest message - this will be used in subsequent runs to quickly identify new transaction emails
         latest_message_id = get_latest_message_id(gmail, messages)
         MessageIDs.add_messageid(latest_message_id, db_creds)
 
-    print('Done')
+    logger.info('All messages processed successfully')
+
+    return ('', 204)

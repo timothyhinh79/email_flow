@@ -1,6 +1,9 @@
 # Use an official Python runtime as a parent image
 FROM python:3.10-slim-buster
 
+# Allow statements and log messages to immediately appear in the Cloud Run logs
+ENV PYTHONUNBUFFERED True
+
 # Set the working directory in the container to /app
 WORKDIR /app
 
