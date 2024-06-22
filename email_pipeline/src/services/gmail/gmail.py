@@ -68,11 +68,9 @@ def get_messages_after_specific_message(
         date_received_for_comparison = get_date_received(message)
 
         # Get the list of messages
-        # Adding 60 second buffer to ensure we don't miss any emails
-        # We will get extra emails that may already be in the database (included the provided message), but save_to_db() should not add duplicate records for the same message id
         results = gmail_client.users().messages().list(
             userId='me', 
-            labelIds=label_ids,q=f'after:{int(date_received_for_comparison) - 60}'
+            labelIds=label_ids,q=f'after:{int(date_received_for_comparison)}'
         ).execute()
 
     messages = results.get('messages', [])
