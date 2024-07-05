@@ -16,6 +16,7 @@ class FinancialTransaction(Base):
     category_ml = Column(String)
     category = Column(String)
     updated_at = Column(DateTime)
+    pipeline_source = Column(String)
 
 class FinancialTransactionTest(Base):
     __tablename__ = 'financial_transactions_test'
@@ -30,3 +31,4 @@ class FinancialTransactionTest(Base):
     category_ml = Column(String)
     category = Column(String)
     updated_at = Column(DateTime)
+    pipeline_source = Column(String)

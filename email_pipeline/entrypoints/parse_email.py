@@ -105,6 +105,7 @@ def index():
 
             # Process each transaction email and save relevant data to DB
             data_json = process_financial_transaction_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
+            data_json['pipeline_source'] = 'parse_email'  
 
             # Produce the message to the Kafka transactions topic
             producer = Producer(producer_config)

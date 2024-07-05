@@ -119,7 +119,8 @@ def index():
         db_creds=db_creds,
         data_json={
             'id': record_id,
-            'category': latest_answer_value
+            'category': latest_answer_value,
+            'pipeline_source': 'process_transaction_categorization_form_submission'
         }
     )
     logger.info(f"Updated category on record with id {record_id}")

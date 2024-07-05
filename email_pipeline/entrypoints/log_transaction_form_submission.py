@@ -108,7 +108,8 @@ def index():
         'transaction_date': transaction_date,
         'category': category,
         'description': description,
-        'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        'updated_at': datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+        'pipeline_source': 'log_transaction_form_submission'
     }
 
     # Produce the message to the Kafka transactions topic
