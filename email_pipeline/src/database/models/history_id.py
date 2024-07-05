@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from src.database.operations.db_functions import query, save_to_db
+from src.database.operations.db_functions import query, insert_record
 import uuid
 import datetime
 
@@ -35,7 +35,7 @@ class HistoryIDs(Base):
             'updated_at': current_time
         }
         
-        save_to_db(cls, data_json, db_creds)
+        return insert_record(cls, data_json, db_creds)
 
 
 class HistoryIDsTest(Base):
@@ -67,4 +67,4 @@ class HistoryIDsTest(Base):
             'updated_at': current_time
         }
 
-        save_to_db(cls, data_json, db_creds)
+        return insert_record(cls, data_json, db_creds)

@@ -113,7 +113,8 @@ def test_add_message_id(db_setup):
         database = DB_DATABASE
     )
     
-    MessageIDsTest.add_messageid('new_id', db_creds)
+    insert_res = MessageIDsTest.add_messageid('new_id', db_creds)
     res = MessageIDsTest.fetch_latest_messageid(db_creds)
     
+    assert insert_res == {'status': 'inserted'}
     assert res == 'new_id'

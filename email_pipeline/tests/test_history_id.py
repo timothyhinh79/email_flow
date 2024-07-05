@@ -4,7 +4,6 @@ import os
 from sqlalchemy import create_engine, text
 
 from src.database.models.history_id import HistoryIDsTest
-from src.database.operations.db_functions import query, save_to_db
 from src.entities.db_credentials import DBCredentials
 
 load_dotenv()
@@ -114,7 +113,8 @@ def test_add_history_id(db_setup):
         database = DB_DATABASE
     )
     
-    HistoryIDsTest.add_historyid('new_id', db_creds)
+    insert_res = HistoryIDsTest.add_historyid('new_id', db_creds)
     res = HistoryIDsTest.fetch_latest_historyid(db_creds)
     
+    assert insert_res == {'status': 'inserted'}
     assert res == 'new_id'

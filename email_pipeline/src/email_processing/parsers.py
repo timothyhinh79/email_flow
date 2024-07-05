@@ -5,7 +5,7 @@ import base64
 import email
 
 from src.database.models.financial_transaction import FinancialTransaction
-from src.database.operations.db_functions import save_to_db
+from src.database.operations.db_functions import insert_record
 from src.services.gmail.gmail import get_date_received
 
 def parse_credit_card_transaction(email_body):
@@ -158,7 +158,7 @@ def process_financial_transaction_message(gmail_client, message_id, save_to_db_ 
 
         if save_to_db_:
 
-            save_to_db(FinancialTransaction, data_json, db_creds=db_creds)  
+            insert_record(FinancialTransaction, data_json, db_creds=db_creds)  
             print(f"Successfully saved record to database for message with id {message_id}")
 
     return data_json
