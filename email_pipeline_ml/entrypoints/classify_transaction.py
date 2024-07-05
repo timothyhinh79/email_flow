@@ -7,9 +7,6 @@ from google.cloud import storage
 import tensorflow as tf
 
 from src.services.gcp.gcp import access_secret_version
-from src.database.operations.db_functions import save_to_db
-from src.entities.db_credentials import DBCredentials
-from src.database.models.financial_transaction import FinancialTransaction
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,8 +23,6 @@ TRANSACTIONS_TOPIC_CONSUMER_GROUP_ID = os.getenv('TRANSACTIONS_TOPIC_CONSUMER_GR
 TOPIC_AUTO_OFFSET_RESET = os.getenv('TOPIC_AUTO_OFFSET_RESET')
 TOPIC_SECURITY_PROTOCOL = os.getenv('TOPIC_SECURITY_PROTOCOL')
 TOPIC_SASL_MECHANISMS = os.getenv('TOPIC_SASL_MECHANISMS')
-DB_CREDS_SECRET = os.getenv('DB_CREDS_SECRET')
-DB_CREDS_SECRET_VER = os.getenv('DB_CREDS_SECRET_VER')
 SECRETS_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('SECRETS_ACCESS_SERVICE_ACCOUNT_FILE')
 GCS_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('GCS_ACCESS_SERVICE_ACCOUNT_FILE')
 CLASSIFICATION_MODEL_BUCKET = os.getenv('CLASSIFICATION_MODEL_BUCKET')
@@ -51,24 +46,7 @@ classified_transactions_topic_write_creds = access_secret_version(
     SECRETS_ACCESS_SERVICE_ACCOUNT_FILE
 )
 
-# Access the DB credentials from Secret Manager
-db_creds_json = access_secret_version(
-    'email-parser-414818', 
-    DB_CREDS_SECRET, 
-    DB_CREDS_SECRET_VER,
-    SECRETS_ACCESS_SERVICE_ACCOUNT_FILE
-)
-
 logger.info("Credentials loaded")
-
-# Create DBCredentials object
-db_creds = DBCredentials(
-    host = db_creds_json['DB_HOST'],
-    port = db_creds_json['DB_PORT'],
-    user = db_creds_json['DB_USER'],
-    password = db_creds_json['DB_PASSWORD'],
-    database = db_creds_json['DB_DATABASE'],
-)
 
 # Define the Kafka Consumer configuration
 kafka_consumer_config = {
@@ -129,22 +107,15 @@ if __name__ == "__main__":
                 # Predict category based on description
                 predicted_category = categories_text[model.predict([data_json['description']])[0].argmax(axis=-1)]
                 data_json['category_ml'] = predicted_category
-                data_json['category'] = predicted_category
+                if 'category' not in data_json: # If category is already present (e.g. from a manually logged transaction), don't overwrite it
+                    data_json['category'] = predicted_category
                 logger.info(f"Classified transaction ID '{data_json['id']}' as '{predicted_category}'")
 
-                # Save classifed transaction to DB
-                res = save_to_db(FinancialTransaction, data_json, db_creds)
-                if res:
-                    logger.info(f"Saved message to DB: {msg.value().decode('utf-8')}")
-
-                    # Produce the classified transaction to the classified-transactions topic
-                    producer = Producer(kafka_producer_config)
-                    producer.produce(CLASSIFIED_TRANSACTIONS_TOPIC, json.dumps(data_json))
-                    producer.flush()
-                    logger.info(f"Produced message to topic '{CLASSIFIED_TRANSACTIONS_TOPIC}': {json.dumps(data_json)}")
-
-                else:
-                    logger.info(f"Following message already exists in DB: {msg.value().decode('utf-8')}")
+                # Produce the classified transaction to the classified-transactions topic
+                producer = Producer(kafka_producer_config)
+                producer.produce(CLASSIFIED_TRANSACTIONS_TOPIC, json.dumps(data_json))
+                producer.flush()
+                logger.info(f"Produced message to topic '{CLASSIFIED_TRANSACTIONS_TOPIC}': {json.dumps(data_json)}")
 
     except KeyboardInterrupt:
         pass
