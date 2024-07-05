@@ -117,9 +117,10 @@ def index():
     update_record(
         model=FinancialTransaction,
         db_creds=db_creds,
-        id=record_id,
-        field='category',
-        new_value=latest_answer_value
+        data_json={
+            'id': record_id,
+            'category': latest_answer_value
+        }
     )
     logger.info(f"Updated category on record with id {record_id}")
 

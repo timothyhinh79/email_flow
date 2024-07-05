@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text, inspect
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker, DeclarativeMeta
 
 from typing import Type
@@ -24,28 +25,69 @@ def get_pk_field(model: Type[DeclarativeMeta]):
         if column.primary_key:
             return key
 
-def save_to_db(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCredentials):
+def insert_record(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCredentials):
+
+    new_transaction = model(**data_json)
 
     try:
         engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
         Session = sessionmaker(bind=engine)
         session = Session()
 
-        new_transaction = model(**data_json)
-
         session.add(new_transaction)
         session.commit()
-        session.close()
-        return True
+        return {'status': 'inserted'}
 
-    except Exception as e:
-        
-        if str(e)[:33] == '(psycopg2.errors.UniqueViolation)':
+    # If attempting to insert a record with a primary key that already exists, update the record instead
+    except IntegrityError as e:
+        session.rollback()
+        if 'unique constraint' in str(e.orig).lower():
             pk_field = get_pk_field(model)
             print(f"Record with id {data_json[pk_field]} already exists in {model.__table_args__['schema']}.{model.__tablename__}")
-            return False
-        else:
-            raise # raise original Exception
+            return {'status': 'failed to insert duplicate record'}
+    
+    # Handle other unexpected errors
+    except Exception as e:
+        session.rollback()
+        print(f"An unexpected error occurred: {e}")
+        raise
+
+    finally:
+        session.close()
+
+def update_record(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCredentials):
+
+    new_transaction = model(**data_json)
+
+    try:
+
+        engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        pk_field = get_pk_field(model)
+        print(f"Record with id {data_json[pk_field]} already exists in {model.__table_args__['schema']}.{model.__tablename__}")
+        print(f"Will update record with id {data_json[pk_field]} instead.")
+        session.merge(new_transaction)
+        session.commit()
+        return {'status': 'updated'}
+    
+    # Handle other unexpected errors
+    except Exception as e:
+        session.rollback()
+        print(f"An unexpected error occurred: {e}")
+        raise
+
+    finally:
+        session.close()
+
+def upsert_record(model: Type[DeclarativeMeta], data_json: dict, db_creds: DBCredentials):
+
+    insert_res = insert_record(model, data_json, db_creds)
+    if insert_res['status'] == 'inserted':
+        return insert_res
+    elif insert_res['status'] == 'failed to insert duplicate record':
+        return update_record(model, data_json, db_creds)
 
 def find_record(
     model: Type[DeclarativeMeta], 
@@ -62,26 +104,3 @@ def find_record(
     session.close()
 
     return record
-
-
-def update_record(
-    model: Type[DeclarativeMeta], 
-    db_creds: DBCredentials, 
-    id: str, 
-    field: str, 
-    new_value: str
-):
-    
-    engine = create_engine(f'postgresql://{db_creds.user}:{db_creds.password}@{db_creds.host}:{db_creds.port}/{db_creds.database}')
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Query the record you want to update
-    record = session.query(model).filter_by(id=id).first()
-
-    # Update the record
-    setattr(record, field, new_value)
-
-    # Commit the changes
-    session.commit()
-    session.close()
