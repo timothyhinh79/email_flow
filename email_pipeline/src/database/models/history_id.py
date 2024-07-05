@@ -30,7 +30,7 @@ class HistoryIDs(Base):
     def add_historyid(cls, history_id, db_creds):
         current_time = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S%z')
         data_json = {
-            'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([str(history_id), current_time])),
+            'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([str(history_id), current_time]))),
             'history_id': history_id,
             'updated_at': current_time
         }
@@ -62,7 +62,7 @@ class HistoryIDsTest(Base):
     def add_historyid(cls, history_id, db_creds):
         current_time = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S%z')
         data_json = {
-            'id': uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([str(history_id), current_time])),
+            'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, '-'.join([str(history_id), current_time]))),
             'history_id': history_id,
             'updated_at': current_time
         }
