@@ -107,7 +107,7 @@ if __name__ == "__main__":
                 # Predict category based on description
                 predicted_category = categories_text[model.predict([data_json['description']])[0].argmax(axis=-1)]
                 data_json['category_ml'] = predicted_category
-                if 'category' not in data_json: # If category is already present (e.g. from a manually logged transaction), don't overwrite it
+                if not data_json.get('category', None): # If category is already present (e.g. from a manually logged transaction), don't overwrite it
                     data_json['category'] = predicted_category
                 logger.info(f"Classified transaction ID '{data_json['id']}' as '{predicted_category}'")
 
