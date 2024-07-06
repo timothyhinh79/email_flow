@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import base64
+import time
 from flask import Flask, request
 
 from confluent_kafka import Consumer, KafkaException
@@ -124,7 +125,9 @@ def index():
 
     try:
 
-        while True:
+        # Read messages until there are no more
+        msg = True
+        while msg:
             
             # Poll for messages
             msg = consumer.poll(1.0)
@@ -140,7 +143,7 @@ def index():
                 logger.info(f"Received message from topic: {msg.value().decode('utf-8')}")
 
                 # Insert or upsert classified transaction into DB table
-                if data_json['pipeline_source'] == 'parse_email':
+                if data_json.get('pipeline_source') == 'parse_email':
                     res = insert_record(FinancialTransaction, data_json, db_creds)
                 else:
                     res = upsert_record(FinancialTransaction, data_json, db_creds)
@@ -158,7 +161,7 @@ def index():
                     # If this is a new transaction from an automatically parsed + classified email, 
                         # send an email # to the main account asking for confirmation or correction 
                         # of the transaction category
-                    if data_json['pipeline_source'] == 'parse_email':
+                    if data_json.get('pipeline_source') == 'parse_email':
                         
                         # Create google form for categorizing the transaction
                         subject = f"Categorize \"{data_json['description']}\" Transaction"
@@ -221,8 +224,13 @@ def index():
                 else:
                     logger.error(f"An unexpected error occurred while saving message to DB: {msg.value().decode('utf-8')}")
 
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        raise
     except KeyboardInterrupt:
         pass
     finally:
         # Close down consumer to commit final offsets.
         consumer.close()
+
+    return ('', 204)

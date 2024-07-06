@@ -6,7 +6,7 @@ from confluent_kafka import Consumer, Producer, KafkaException
 from google.cloud import storage
 import tensorflow as tf
 
-from src.services.gcp.gcp import access_secret_version
+from src.services.gcp.gcp import access_secret_version, publish_message
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,8 +25,10 @@ TOPIC_SECURITY_PROTOCOL = os.getenv('TOPIC_SECURITY_PROTOCOL')
 TOPIC_SASL_MECHANISMS = os.getenv('TOPIC_SASL_MECHANISMS')
 SECRETS_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('SECRETS_ACCESS_SERVICE_ACCOUNT_FILE')
 GCS_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('GCS_ACCESS_SERVICE_ACCOUNT_FILE')
+PUBSUB_ACCESS_SERVICE_ACCOUNT_FILE = os.getenv('PUBSUB_ACCESS_SERVICE_ACCOUNT_FILE')
 CLASSIFICATION_MODEL_BUCKET = os.getenv('CLASSIFICATION_MODEL_BUCKET')
 MODEL_FILE = os.getenv('MODEL_FILE')
+PUBSUB_TRIGGER_TOPIC = os.getenv('PUBSUB_TRIGGER_TOPIC')
 
 logger.info("Environment variables loaded")
 
@@ -116,6 +118,18 @@ if __name__ == "__main__":
                 producer.produce(CLASSIFIED_TRANSACTIONS_TOPIC, json.dumps(data_json))
                 producer.flush()
                 logger.info(f"Produced message to topic '{CLASSIFIED_TRANSACTIONS_TOPIC}': {json.dumps(data_json)}")
+
+                # Publish a message to the trigger topic
+                message = {
+                    "transaction_id": data_json['id'],
+                    "category": predicted_category
+                }
+                publish_message(
+                    'email-parser-414818', 
+                    PUBSUB_TRIGGER_TOPIC, 
+                    message, 
+                    PUBSUB_ACCESS_SERVICE_ACCOUNT_FILE
+                )
 
     except KeyboardInterrupt:
         pass
