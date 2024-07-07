@@ -105,14 +105,19 @@ def index():
 
             # Process each transaction email and save relevant data to DB
             data_json = process_financial_transaction_message(gmail, message['id'], save_to_db_= False, db_creds = db_creds)
-            data_json['pipeline_source'] = 'parse_email'  
+            
+            if data_json:
+                data_json['pipeline_source'] = 'parse_email'  
 
-            # Produce the message to the Kafka transactions topic
-            producer = Producer(producer_config)
-            producer.produce(TRANSACTIONS_TOPIC, value=json.dumps(data_json))
-            producer.flush()
+                # Produce the message to the Kafka transactions topic
+                producer = Producer(producer_config)
+                producer.produce(TRANSACTIONS_TOPIC, value=json.dumps(data_json))
+                producer.flush()
 
-            logger.info(f'Transaction email processed successfully for message ID: {message["id"]}')
+                logger.info(f'Transaction email processed successfully for message ID: {message["id"]}')
+            
+            else:
+                logger.info(f'Message ID {message["id"]} could not be processed...skipping')
 
         # Save the id of the latest message - this will be used in subsequent runs to quickly identify new transaction emails
         latest_message_id = get_latest_message_id(gmail, messages)
