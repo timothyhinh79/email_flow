@@ -101,29 +101,31 @@ app = Flask(__name__)
 @app.route('/', methods=['POST'])
 def index():
 
-    ##### Parse the Pub/Sub message
-    envelope = request.get_json()
-    if not envelope:
-        msg = "no Pub/Sub message received"
-        logger.error(f"error: {msg}")
-        return f"Bad Request: {msg}", 400
-
-    if not isinstance(envelope, dict) or "message" not in envelope:
-        msg = "invalid Pub/Sub message format"
-        logger.error(f"error: {msg}")
-        return f"Bad Request: {msg}", 400
-
-    pubsub_message = envelope["message"]
-
-    pubsub_message_data = base64.b64decode(pubsub_message["data"])
-    print("Pubsub Message")
-    print(pubsub_message_data)
-
-    # Subscribe to the Kafka topic
-    consumer = Consumer(kafka_consumer_config)
-    consumer.subscribe([CLASSIFIED_TRANSACTIONS_TOPIC])
+    consumer = None
 
     try:
+
+        ##### Parse the Pub/Sub message
+        envelope = request.get_json()
+        if not envelope:
+            msg = "no Pub/Sub message received"
+            logger.error(f"error: {msg}")
+            return f"Bad Request: {msg}", 400
+
+        if not isinstance(envelope, dict) or "message" not in envelope:
+            msg = "invalid Pub/Sub message format"
+            logger.error(f"error: {msg}")
+            return f"Bad Request: {msg}", 400
+
+        pubsub_message = envelope["message"]
+
+        pubsub_message_data = base64.b64decode(pubsub_message["data"])
+        print("Pubsub Message")
+        print(pubsub_message_data)
+
+        # Subscribe to the Kafka topic
+        consumer = Consumer(kafka_consumer_config)
+        consumer.subscribe([CLASSIFIED_TRANSACTIONS_TOPIC])
 
         # Read messages until there are no more
         msg = True
@@ -225,12 +227,14 @@ def index():
                     logger.error(f"An unexpected error occurred while saving message to DB: {msg.value().decode('utf-8')}")
 
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        raise
+        logger.error(f"error: {e}")
+
     except KeyboardInterrupt:
         pass
-    finally:
-        # Close down consumer to commit final offsets.
-        consumer.close()
 
-    return ('', 204)
+    # always return a 204 to prevent Cloud Run service from infinitely retrying the request in case of an error
+    finally:
+        # Close down consumer if it exists to commit final offsets
+        if consumer:
+            consumer.close()
+        return ('', 204)
