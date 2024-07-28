@@ -1,5 +1,6 @@
 .env
 venv/
+venv_ml/
 sample_data/
 credentials/
 __pycache__/
