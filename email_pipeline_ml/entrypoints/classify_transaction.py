@@ -77,18 +77,21 @@ if __name__ == "__main__":
     consumer = Consumer(kafka_consumer_config)
     consumer.subscribe([TRANSACTIONS_TOPIC])
 
-    categories_text = [
-        'Food', 'Personal & Miscellaneous', 'Savings & Investments',
-        'Entertainment', 'Education', 'Living Expenses'
-    ]
+    categories_text = ['Food', 'Personal & Miscellaneous', 'Savings & Investments', 
+                       'Entertainment', 'Education', 'Living Expenses', 
+                       'Transportation', 'Healthcare', 'Travel']
 
     # Load classification model
     gcs = storage.Client.from_service_account_json(GCS_ACCESS_SERVICE_ACCOUNT_FILE)
     bucket = gcs.get_bucket(CLASSIFICATION_MODEL_BUCKET)
-    blob = bucket.blob(MODEL_FILE)
+    blob = bucket.get_blob(MODEL_FILE)
     blob.download_to_filename(MODEL_FILE) 
     model = tf.keras.models.load_model(MODEL_FILE)
     logger.info("Loaded classification model")
+    
+    # get modified timestamp from GCS of the model file in UTC
+    model_file_updated = blob.updated
+    logger.info(f"Model file last modified: {model_file_updated}")
 
     try:
         while True:
@@ -101,6 +104,15 @@ if __name__ == "__main__":
             if msg.error():
                 raise KafkaException(msg.error())
             else:
+
+                # Check if the model file has been updated
+                blob = bucket.get_blob(MODEL_FILE)
+                if model_file_updated != blob.updated:
+                    logger.info("Model file has been updated. Reloading model...")
+                    blob.download_to_filename(MODEL_FILE) 
+                    model = tf.keras.models.load_model(MODEL_FILE)
+                    model_file_updated = blob.updated
+                    logger.info("Model reloaded")
 
                 # Load the JSON message from topic
                 data_json = json.loads(msg.value().decode('utf-8'))
